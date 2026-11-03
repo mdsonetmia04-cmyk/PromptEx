@@ -5,7 +5,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/PromptEx/',
+    base: process.env.VERCEL ? '/' : '/PromptEx/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
