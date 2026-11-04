@@ -18,6 +18,9 @@ export const ImageCard: React.FC<ImageCardProps> = ({
   onUpdateResult,
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const isEps = /\.eps$/i.test(item.file.name);
+  const showVectorPlaceholder = isEps && item.epsState !== "ready";
+  const epsRendering = isEps && item.epsState === "rendering";
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.result?.title || "");
   const [editKeywordsStr, setEditKeywordsStr] = useState(
@@ -71,7 +74,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-[16/10] bg-[#0E1510] overflow-hidden">
-{/\.eps$/i.test(item.file.name) ? (
+{showVectorPlaceholder ? (
           <div
             className="w-full h-full flex flex-col items-center justify-center gap-1.5 select-none px-3"
             style={{ background: "linear-gradient(160deg, #16241A 0%, #0E1510 100%)" }}
@@ -84,14 +87,24 @@ export const ImageCard: React.FC<ImageCardProps> = ({
                 boxShadow: "0 0 18px rgba(143,191,90,0.18)",
               }}
             >
-              <PenTool size={20} className="text-[#B4E677]" />
+              {epsRendering ? (
+                <LoaderCircle size={20} className="text-[#B4E677] animate-spin" />
+              ) : (
+                <PenTool size={20} className="text-[#B4E677]" />
+              )}
             </div>
             <span className="mono text-[10px] tracking-[0.22em] text-[#8FBF5A]">EPS VECTOR</span>
             <span className="mono text-[9px] text-[#5A7565] max-w-full truncate">{item.file.name}</span>
-            {item.status === "idle" && (
+            {epsRendering ? (
               <span className="mono text-[9px] text-[#8CA99A] mt-0.5 text-center leading-relaxed">
-                pair a same-name JPG preview for AI
+                Rendering vector…
               </span>
+            ) : (
+              item.status === "idle" && (
+                <span className="mono text-[9px] text-[#8CA99A] mt-0.5 text-center leading-relaxed">
+                  pair a same-name JPG preview for AI
+                </span>
+              )
             )}
           </div>
         ) : (
