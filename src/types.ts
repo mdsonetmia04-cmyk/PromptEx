@@ -5,6 +5,7 @@ export interface Provider {
   endpoint: string;
   free: boolean;
   description?: string;
+  keyUrl: string;
 }
 
 export type ExecutionMode = "metadata" | "prompt";
@@ -44,7 +45,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "generativelanguage.googleapis.com",
     free: true,
     description: "Google Gemini Vision — Fast, accurate microstock analysis",
-  },
+    keyUrl: "https://aistudio.google.com/apikey",  },
   {
     id: "groq",
     name: "Groq",
@@ -52,7 +53,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "api.groq.com",
     free: true,
     description: "Groq ultra-fast inference — Llama 4 Scout Vision",
-  },
+    keyUrl: "https://console.groq.com/keys",  },
   {
     id: "openrouter",
     name: "OpenRouter",
@@ -60,7 +61,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "openrouter.ai",
     free: true,
     description: "OpenRouter unified AI endpoint",
-  },
+    keyUrl: "https://openrouter.ai/keys",  },
   {
     id: "together",
     name: "Together",
@@ -68,7 +69,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "api.together.xyz",
     free: true,
     description: "Together AI high-throughput Vision API",
-  },
+    keyUrl: "https://api.together.xyz/settings/api-keys",  },
   {
     id: "mistral",
     name: "Mistral",
@@ -76,7 +77,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "api.mistral.ai",
     free: true,
     description: "Mistral Pixtral 12B Multimodal model",
-  },
+    keyUrl: "https://console.mistral.ai/api-keys",  },
   {
     id: "huggingface",
     name: "HuggingFace",
@@ -84,7 +85,7 @@ export const PROVIDERS: Provider[] = [
     endpoint: "api-inference.huggingface.co",
     free: true,
     description: "HuggingFace Serverless Inference",
-  },
+    keyUrl: "https://huggingface.co/settings/tokens",  },
 ];
 
 export const PLATFORMS: StockPlatform[] = [
