@@ -7,6 +7,7 @@ interface ApiKeysModalProps {
   onClose: () => void;
   apiKeys: ProviderKeys;
   onSaveKeys: (newKeys: ProviderKeys) => void;
+  onRemoveKey: (providerId: string) => void;
   activeProviderId: string;
   onSelectActiveProvider: (id: string) => void;
   hasServerGeminiKey: boolean;
@@ -19,6 +20,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
   onClose,
   apiKeys,
   onSaveKeys,
+  onRemoveKey,
   activeProviderId,
   onSelectActiveProvider,
   hasServerGeminiKey,
@@ -46,6 +48,15 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
 
   const handleToggleShow = (providerId: string) => {
     setShowKeyMap((prev) => ({ ...prev, [providerId]: !prev[providerId] }));
+  };
+
+  const handleRemoveKey = (providerId: string) => {
+    const nextKeys = { ...localKeys };
+    delete nextKeys[providerId];
+    setLocalKeys(nextKeys);
+    onRemoveKey(providerId);
+    setTestState((prev) => ({ ...prev, [providerId]: "idle" }));
+    setTestMessage((prev) => ({ ...prev, [providerId]: "" }));
   };
 
   const handleTestAndSave = async (providerId: string) => {
@@ -128,7 +139,15 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                       <div className={`w-[8px] h-[8px] rounded-full shrink-0 ${isConfigured ? "bg-[#8FBF5A] shadow-[0_0_8px_rgba(143,191,90,0.6)]" : "bg-[#2B4432]"}`} />
                       <span className="mono text-[12px] font-semibold text-[#E6EFE8]">{prov.name}</span>
                     </div>
-                    
+                    <a
+                      href={prov.keyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="mono text-[10px] text-[#8FBF5A]/70 hover:text-[#B4E677] transition-colors shrink-0"
+                    >
+                      Get key ↗
+                    </a>
                   </div>
 
                   <div className="flex gap-2 items-center">
@@ -155,6 +174,17 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                       {state === "testing" ? <LoaderCircle size={13} className="animate-spin" /> : state === "success" ? <ShieldCheck size={13} /> : state === "error" ? <CircleAlert size={13} /> : <Check size={13} />}
                       <span>{state === "testing" ? "TESTING…" : state === "success" ? "SAVED" : state === "error" ? "RETRY" : "TEST & SAVE"}</span>
                     </button>
+                    {hasKey && (
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveKey(prov.id)}
+                        title={`Remove ${prov.name} API key`}
+                        aria-label={`Remove ${prov.name} API key`}
+                        className="h-[40px] w-[40px] shrink-0 rounded-[8px] bg-[#0E1510] border border-[#2B4432] text-[#6B8A7A] hover:text-[#FF9B9B] hover:border-[#7A3434] flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
                   </div>
 
                   {testMessage[prov.id] && (
