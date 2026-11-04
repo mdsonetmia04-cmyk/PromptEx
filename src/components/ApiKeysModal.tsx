@@ -81,8 +81,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
     }
   };
 
-  const activeProvider = PROVIDERS.find((p) => p.id === activeProviderId) || PROVIDERS[0];
-
   return (
     <div
       id="api-keys-modal-backdrop"
@@ -115,15 +113,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto scroll-hide flex-1">
-          <div className="px-3 py-2.5 rounded-[9px] bg-[#0E1510] border border-[#2B4432] flex items-center justify-between">
-            <span className="mono text-[10px] text-[#6B8A7A]">ACTIVE PROVIDER / MODEL</span>
-            <span className="mono text-[11px] font-semibold text-[#8FBF5A] flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#8FBF5A] shadow-[0_0_8px_#8FBF5A]" /> {activeProvider.name} — {activeProvider.model}
-            </span>
-          </div>
-
-          <div className="mono text-[11px] font-semibold tracking-wider text-[#E6EFE8]">API PROVIDERS</div>
-
           <div className="space-y-2.5">
             {PROVIDERS.map((prov) => {
               const isSelected = activeProviderId === prov.id;
@@ -138,8 +127,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                     <div className="flex items-center gap-2 min-w-0">
                       <div className={`w-[8px] h-[8px] rounded-full shrink-0 ${isConfigured ? "bg-[#8FBF5A] shadow-[0_0_8px_rgba(143,191,90,0.6)]" : "bg-[#2B4432]"}`} />
                       <span className="mono text-[12px] font-semibold text-[#E6EFE8]">{prov.name}</span>
-                      <span className="mono text-[9px] px-1.5 py-0.5 rounded bg-[#142017] border border-[#2B4432] text-[#8CA99A] truncate">{prov.model}</span>
-                      {isSelected && <span className="mono text-[8px] px-1.5 py-0.5 rounded-full bg-[#8FBF5A] text-[#0E1510] font-semibold shrink-0">ACTIVE</span>}
                     </div>
                     
                   </div>
@@ -170,20 +157,18 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between gap-3 mono text-[9px] mt-2">
-                    <span className="text-[#6B8A7A] truncate">{prov.description}</span>
-                    <span className={`${state === "success" ? "text-[#8FBF5A]" : state === "error" ? "text-[#FF9B9B]" : "text-[#6B8A7A]"} shrink-0`}>
-                      {testMessage[prov.id] || prov.endpoint}
-                    </span>
-                  </div>
+                  {testMessage[prov.id] && (
+                    <div className={`mono text-[9px] mt-2 ${state === "success" ? "text-[#8FBF5A]" : "text-[#FF9B9B]"}`}>
+                      {testMessage[prov.id]}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="p-4 border-t flex items-center justify-between gap-3" style={{ borderColor: "#2B4432", background: "#0E1510" }}>
-          <span className="mono text-[9px] text-[#6B8A7A]">✓ Successful TEST automatically saves & activates the provider.</span>
+        <div className="p-4 border-t flex items-center justify-end gap-3" style={{ borderColor: "#2B4432", background: "#0E1510" }}>
           <button id="modal-done-btn" onClick={onClose} className="h-[40px] px-5 rounded-[9px] bg-[#1F3324] border border-[#2B4432] text-[#E6EFE8] mono text-[10px] font-semibold hover:border-[#8FBF5A]/50 cursor-pointer">DONE</button>
         </div>
       </div>
