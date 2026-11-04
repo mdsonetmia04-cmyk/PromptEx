@@ -86,17 +86,6 @@ export const PROVIDERS: Provider[] = [
   },
 ];
 
-export function detectProviderFromKey(rawKey: string): string | null {
-  const key = rawKey.trim();
-  if (!key) return null;
-  if (key.startsWith("AIzaSy")) return "gemini";
-  if (key.startsWith("gsk_")) return "groq";
-  if (key.startsWith("sk-or-") || key.startsWith("sk-or-v1-")) return "openrouter";
-  if (key.startsWith("hf_")) return "huggingface";
-  if (/^[a-f0-9]{64}$/i.test(key)) return "together";
-  return null;
-}
-
 export const PLATFORMS: StockPlatform[] = [
   "AdobeStock",
   "Shutterstock",
