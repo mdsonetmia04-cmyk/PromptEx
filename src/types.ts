@@ -29,6 +29,7 @@ export interface ImageItem {
   status: "idle" | "processing" | "done" | "error";
   error?: string;
   result?: AnalysisResult;
+  epsState?: "rendering" | "ready" | "failed";
 }
 
 export interface ProviderKeys {
