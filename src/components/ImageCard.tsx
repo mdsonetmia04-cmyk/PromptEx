@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, LoaderCircle, CircleAlert, Check, Copy, Edit2, RotateCw } from "lucide-react";
+import { X, LoaderCircle, CircleAlert, Check, Copy, Edit2, RotateCw, Download } from "lucide-react";
 import { ImageItem, ExecutionMode } from "../types";
 
 interface ImageCardProps {
@@ -33,6 +33,25 @@ export const ImageCard: React.FC<ImageCardProps> = ({
     } catch (err) {
       console.error("Failed to copy:", err);
     }
+  };
+
+  // Download per-image TXT named exactly after the original file (same base name + .txt, never renamed)
+  const downloadTxt = () => {
+    if (!item.result) return;
+    const baseName = item.file.name.replace(/\.[^.]+$/, "") || item.file.name;
+    const body =
+      mode === "prompt"
+        ? `Prompt: ${item.result.prompt.trim()}\n\nKeywords: ${item.result.keywords.join(", ")}`
+        : `Title: ${item.result.title.trim()}\n\nKeywords: ${item.result.keywords.join(", ")}`;
+    const blob = new Blob([body], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${baseName}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleSaveEdit = () => {
@@ -244,6 +263,16 @@ export const ImageCard: React.FC<ImageCardProps> = ({
                         <span>COPY TAGS ({item.result.keywords.length})</span>
                       </>
                     )}
+                  </button>
+
+                  <button
+                    id={`download-txt-${item.id}`}
+                    onClick={downloadTxt}
+                    className="btn-primary-3d flex-1 h-[32px] rounded-[8px] mono text-[10px] font-semibold flex items-center justify-center gap-1.5 text-[#0E1510] cursor-pointer"
+                    title="Download TXT (same name as original file)"
+                  >
+                    <Download size={11} />
+                    <span>TXT</span>
                   </button>
                 </div>
               </>
