@@ -1,5 +1,5 @@
 import React from "react";
-import { Key, Layers, Settings2, Target, Sparkles } from "lucide-react";
+import { Layers, Settings2, Target } from "lucide-react";
 import { ExecutionMode, StockPlatform, PLATFORMS, ProviderKeys } from "../types";
 
 interface SidebarProps {
@@ -51,50 +51,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeProviderId,
   onOpenKeysModal,
 }) => {
-  const hasAnyKey = Object.values(apiKeys).some(
-    (k) => typeof k === "string" && Boolean(k.trim())
-  );
-
   return (
     <aside
       id="app-sidebar"
       className="w-full lg:w-[360px] shrink-0 p-4 md:p-5 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r"
       style={{ borderColor: "#1E3325", background: "#0E1510" }}
     >
-      {/* API Keys Card (Provider names kept strictly inside modal) */}
-      <div
-        id="sidebar-api-keys-card"
-        className="rounded-[14px] p-4"
-        style={{ background: "#1A2A1E", border: "1px solid #2B4432" }}
-      >
-        <div
-          className="flex items-center gap-2 mono text-[11px] tracking-[0.14em] mb-2.5"
-          style={{ color: "#8FBF5A" }}
-        >
-          <Key size={14} />
-          <span>API KEYS & ENGINE</span>
-        </div>
-
-        <div
-          className={`text-[11px] leading-relaxed mb-3 ${
-            hasAnyKey ? "mono text-[#8CA99A]" : "font-bangla text-[#8CA99A]"
-          }`}
-        >
-          {hasAnyKey
-            ? "API key active — vision model auto-selected."
-            : "নিজের API key আবশ্যক — MANAGE API KEYS থেকে ফ্রি key যোগ করুন।"}
-        </div>
-
-        <button
-          id="manage-keys-btn"
-          onClick={onOpenKeysModal}
-          className="w-full h-[36px] rounded-[8px] bg-[#1F3324] hover:bg-[#2B4432] border border-[#2B4432] hover:border-[#8FBF5A]/50 text-[#E6EFE8] hover:text-[#8FBF5A] mono text-[11px] font-semibold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
-        >
-          <Sparkles size={13} className="text-[#8FBF5A]" />
-          <span>MANAGE API KEYS</span>
-        </button>
-      </div>
-
       {/* Mode Switcher */}
       <div
         id="sidebar-mode-card"
