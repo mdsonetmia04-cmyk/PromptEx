@@ -22,7 +22,7 @@ const STORAGE_KEYS_PREFIX = "prompt_executor_keys_v1";
 export default function App() {
   const [aiEnabled, setAiEnabled] = useState<boolean>(true);
   const [mode, setMode] = useState<ExecutionMode>("metadata");
-  const [activeProviderId, setActiveProviderId] = useState<string>("gemini");
+  const [activeProviderId, setActiveProviderId] = useState<string>("");
   const [apiKeys, setApiKeys] = useState<ProviderKeys>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS_PREFIX);
@@ -157,7 +157,7 @@ export default function App() {
   };
 
   const activeProvider =
-    PROVIDERS.find((p) => p.id === activeProviderId) || PROVIDERS[0];
+    PROVIDERS.find((p) => p.id === activeProviderId) || null;
 
   // Helper to read file to base64
   const readFileAsBase64 = (
@@ -741,7 +741,7 @@ export default function App() {
                   className="mono text-[11px] tracking-[0.14em]"
                   style={{ color: "#8FBF5A" }}
                 >
-                  {images.length} IMAGES • {activeProvider.name.toUpperCase()} •{" "}
+                  {images.length} IMAGES • {activeProvider ? activeProvider.name.toUpperCase() : "NO API KEY"} •{" "}
                   {mode.toUpperCase()}
                   {completedCount > 0 && (
                     <span className="text-[#8CA99A] ml-2">
