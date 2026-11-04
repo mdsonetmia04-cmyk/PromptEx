@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, LoaderCircle, CircleAlert, Check, Copy, Edit2, RotateCw, Download } from "lucide-react";
+import { X, LoaderCircle, CircleAlert, Check, Copy, Edit2, RotateCw, Download, PenTool } from "lucide-react";
 import { ImageItem, ExecutionMode } from "../types";
 
 interface ImageCardProps {
@@ -71,11 +71,36 @@ export const ImageCard: React.FC<ImageCardProps> = ({
     >
       {/* Thumbnail Area */}
       <div className="relative aspect-[16/10] bg-[#0E1510] overflow-hidden">
-        <img
-          src={item.preview}
-          alt={item.file.name}
-          className="w-full h-full object-cover select-none"
-        />
+{/\.eps$/i.test(item.file.name) ? (
+          <div
+            className="w-full h-full flex flex-col items-center justify-center gap-1.5 select-none px-3"
+            style={{ background: "linear-gradient(160deg, #16241A 0%, #0E1510 100%)" }}
+          >
+            <div
+              className="w-[46px] h-[46px] rounded-[12px] flex items-center justify-center"
+              style={{
+                background: "#1A2A1E",
+                border: "1px solid rgba(143,191,90,0.4)",
+                boxShadow: "0 0 18px rgba(143,191,90,0.18)",
+              }}
+            >
+              <PenTool size={20} className="text-[#B4E677]" />
+            </div>
+            <span className="mono text-[10px] tracking-[0.22em] text-[#8FBF5A]">EPS VECTOR</span>
+            <span className="mono text-[9px] text-[#5A7565] max-w-full truncate">{item.file.name}</span>
+            {item.status === "idle" && (
+              <span className="mono text-[9px] text-[#8CA99A] mt-0.5 text-center leading-relaxed">
+                pair a same-name JPG preview for AI
+              </span>
+            )}
+          </div>
+        ) : (
+          <img
+            src={item.preview}
+            alt={item.file.name}
+            className="w-full h-full object-cover select-none"
+          />
+        )}
 
         {/* Status Badge */}
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 z-10">
