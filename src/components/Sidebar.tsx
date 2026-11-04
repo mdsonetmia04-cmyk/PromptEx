@@ -1,5 +1,5 @@
-import React from "react";
-import { Layers, Settings2, Target } from "lucide-react";
+import React, { useState } from "react";
+import { Layers, Settings2, Target, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { ExecutionMode, StockPlatform, PLATFORMS, ProviderKeys } from "../types";
 
 interface SidebarProps {
@@ -25,6 +25,16 @@ interface SidebarProps {
   hasServerGeminiKey: boolean;
   activeProviderId: string;
   onOpenKeysModal: () => void;
+  titleCase: string;
+  onChangeTitleCase: (val: string) => void;
+  maxTitleLength: number;
+  onChangeMaxTitleLength: (val: number) => void;
+  bannedWords: string;
+  onChangeBannedWords: (val: string) => void;
+  temperature: number;
+  onChangeTemperature: (val: number) => void;
+  promptDetail: string;
+  onChangePromptDetail: (val: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -50,7 +60,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   hasServerGeminiKey,
   activeProviderId,
   onOpenKeysModal,
+  titleCase,
+  onChangeTitleCase,
+  maxTitleLength,
+  onChangeMaxTitleLength,
+  bannedWords,
+  onChangeBannedWords,
+  temperature,
+  onChangeTemperature,
+  promptDetail,
+  onChangePromptDetail,
 }) => {
+  const [showAdvanced, setShowAdvanced] = useState(false);
   return (
     <aside
       id="app-sidebar"
@@ -266,6 +287,121 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Advance Settings Card (collapsible, hidden by default) */}
+      <div
+        id="sidebar-advance-settings-card"
+        className="rounded-[14px] p-4"
+        style={{ background: "#1A2A1E", border: "1px solid #2B4432" }}
+      >
+        <button
+          id="advance-settings-toggle"
+          type="button"
+          onClick={() => setShowAdvanced((v) => !v)}
+          className="w-full flex items-center justify-between cursor-pointer"
+          aria-expanded={showAdvanced}
+        >
+          <div
+            className="mono text-[11px] tracking-[0.14em] flex items-center gap-2"
+            style={{ color: "#8FBF5A" }}
+          >
+            <SlidersHorizontal size={14} />
+            <span>ADVANCE SETTINGS</span>
+          </div>
+          <ChevronDown
+            size={16}
+            className={`text-[#8CA99A] transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {showAdvanced && (
+          <div className="space-y-4 mt-4">
+            <div>
+              <div className="mono text-[10px] mb-2" style={{ color: "#6B8A7A" }}>
+                TITLE CASE
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[["title", "Title Case"], ["sentence", "Sentence case"], ["upper", "UPPERCASE"], ["lower", "lowercase"]].map(([v, l]) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => onChangeTitleCase(v)}
+                    className={`h-[30px] rounded-[8px] mono text-[10px] cursor-pointer transition-all ${titleCase === v ? "bg-[#8FBF5A] text-[#0E1510] font-bold" : "bg-[#0E1510] border border-[#2B4432] text-[#8CA99A] hover:border-[#8FBF5A]/40"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="mono text-[10px] mb-2 flex justify-between" style={{ color: "#6B8A7A" }}>
+                <span>MAX TITLE LENGTH</span>
+                <span className="text-[#8CA99A]">{maxTitleLength} chars</span>
+              </div>
+              <input
+                id="max-title-length-input"
+                type="number"
+                min={50}
+                max={500}
+                value={maxTitleLength}
+                onChange={(e) => onChangeMaxTitleLength(Math.max(50, Math.min(500, Number(e.target.value) || 200)))}
+                className="w-full h-[32px] rounded-[8px] bg-[#0E1510] border border-[#2B4432] px-3 mono text-[12px] text-[#E6EFE8] outline-none focus:border-[#8FBF5A]/50"
+              />
+            </div>
+
+            <div>
+              <div className="mono text-[10px] mb-2" style={{ color: "#6B8A7A" }}>
+                BANNED WORDS
+              </div>
+              <input
+                id="banned-words-input"
+                type="text"
+                value={bannedWords}
+                onChange={(e) => onChangeBannedWords(e.target.value)}
+                placeholder="e.g. beautiful, amazing, nice"
+                className="w-full h-[32px] rounded-[8px] bg-[#0E1510] border border-[#2B4432] px-3 mono text-[11px] text-[#E6EFE8] outline-none focus:border-[#8FBF5A]/50 placeholder:text-[#6B8A7A]"
+              />
+            </div>
+
+            <div>
+              <div className="mono text-[10px] mb-2" style={{ color: "#6B8A7A" }}>
+                AI CREATIVITY
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[[0.2, "PRECISE"], [0.4, "BALANCED"], [0.7, "CREATIVE"]].map(([v, l]) => (
+                  <button
+                    key={l as string}
+                    type="button"
+                    onClick={() => onChangeTemperature(v as number)}
+                    className={`h-[30px] rounded-[8px] mono text-[10px] cursor-pointer transition-all ${temperature === v ? "bg-[#8FBF5A] text-[#0E1510] font-bold" : "bg-[#0E1510] border border-[#2B4432] text-[#8CA99A] hover:border-[#8FBF5A]/40"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="mono text-[10px] mb-2" style={{ color: "#6B8A7A" }}>
+                PROMPT DETAIL
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[["concise", "CONCISE"], ["detailed", "DETAILED"], ["ultra", "ULTRA"]].map(([v, l]) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => onChangePromptDetail(v)}
+                    className={`h-[30px] rounded-[8px] mono text-[10px] cursor-pointer transition-all ${promptDetail === v ? "bg-[#8FBF5A] text-[#0E1510] font-bold" : "bg-[#0E1510] border border-[#2B4432] text-[#8CA99A] hover:border-[#8FBF5A]/40"}`}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Single-Word Keywords Card */}
