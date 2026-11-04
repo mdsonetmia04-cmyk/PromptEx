@@ -84,14 +84,6 @@ export const PROVIDERS: Provider[] = [
     free: true,
     description: "HuggingFace Serverless Inference",
   },
-  {
-    id: "pollinations",
-    name: "Pollinations",
-    model: "openai",
-    endpoint: "text.pollinations.ai",
-    free: true,
-    description: "Pollinations.ai — 100% free vision, no API key needed",
-  },
 ];
 
 export function detectProviderFromKey(rawKey: string): string | null {
