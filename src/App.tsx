@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { rasterizeEps, uint8ToBase64 } from "./lib/epsRaster";
 import { Plus, LoaderCircle, Download, FileText, Trash2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
@@ -208,7 +209,35 @@ export default function App() {
       }
 
       const newItems: ImageItem[] = [];
+      let epsCount = 0;
       for (const file of validFiles) {
+        // EPS: render to PNG in-browser via Ghostscript WASM — no JPG preview needed.
+        // The card shows the real render; vision AI analyzes the rasterized PNG directly.
+        if (isEpsFile(file)) {
+          epsCount++;
+          const id = Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+          setImages((prev) => [
+            ...prev,
+            { id, file, preview: "", base64: "", mime: "application/postscript", status: "idle", epsState: "rendering" },
+          ]);
+          rasterizeEps(file).then((pngBytes) => {
+            const preview = URL.createObjectURL(new Blob([pngBytes], { type: "image/png" }));
+            setImages((prev) =>
+              prev.map((it) =>
+                it.id === id
+                  ? { ...it, preview, base64: uint8ToBase64(pngBytes), mime: "image/png", epsState: "ready" as const }
+                  : it
+              )
+            );
+          }).catch((err) => {
+            console.error("EPS rasterization failed:", file.name, err);
+            setImages((prev) =>
+              prev.map((it) => (it.id === id ? { ...it, epsState: "failed" as const } : it))
+            );
+            showToast(`Could not render ${file.name} — will try JPG pairing instead.`, "error");
+          });
+          continue;
+        }
         try {
           const { b64, mime, preview } = await readFileAsBase64(file);
           newItems.push({
@@ -225,7 +254,11 @@ export default function App() {
       }
 
       setImages((prev) => [...prev, ...newItems]);
-      showToast(`Added ${newItems.length} image${newItems.length > 1 ? "s" : ""}`, "success");
+      const totalAdded = newItems.length + epsCount;
+      showToast(
+        `Added ${totalAdded} file${totalAdded > 1 ? "s" : ""}${epsCount > 0 ? " — rendering vector(s)…" : ""}`,
+        "success"
+      );
     },
     []
   );
@@ -259,7 +292,13 @@ export default function App() {
   };
 
   const handleRemoveImage = (id: string) => {
-    setImages((prev) => prev.filter((img) => img.id !== id));
+    setImages((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (target && target.preview.startsWith("blob:")) {
+        try { URL.revokeObjectURL(target.preview); } catch { /* ignore */ }
+      }
+      return prev.filter((img) => img.id !== id);
+    });
   };
 
   const handleUpdateCardResult = (
@@ -337,6 +376,10 @@ export default function App() {
   // EPS vectors: vision AI cannot read PostScript, so an EPS inherits metadata
   // from a same-basename raster preview (the standard microstock EPS+JPG workflow).
   const isEpsFile = (f: File) => /\.eps$/i.test(f.name || "");
+  // An EPS that rasterized fine goes through vision AI like any raster image.
+  // Only an EPS whose render failed (or never ran) falls back to JPG pairing.
+  const epsNeedsPairing = (it: ImageItem) =>
+    isEpsFile(it.file) && it.epsState !== "ready" && it.epsState !== "rendering";
   const EPS_PAIR_ERROR =
     "Add a JPG/PNG preview with the same file name \u2014 AI vision cannot read EPS directly.";
 
@@ -391,13 +434,18 @@ export default function App() {
       return;
     }
 
+    if (images.some((it) => isEpsFile(it.file) && it.epsState === "rendering")) {
+      showToast("Vector files are still rendering — please wait a moment.", "info");
+      return;
+    }
+
     setIsProcessing(true);
 
     const freshResults = new Map<string, AnalysisResult>();
 
     // Pass 1 — raster images go through real vision AI
     for (const item of images) {
-      if (item.status === "done" || isEpsFile(item.file)) continue;
+      if (item.status === "done" || epsNeedsPairing(item)) continue;
 
       setImages((prev) =>
         prev.map((it) =>
@@ -444,7 +492,7 @@ export default function App() {
 
     // Pass 2 — EPS vectors inherit metadata from their same-name raster preview
     for (const item of images) {
-      if (item.status === "done" || !isEpsFile(item.file)) continue;
+      if (item.status === "done" || !epsNeedsPairing(item)) continue;
       setImages((prev) =>
         prev.map((it) => (it.id === item.id ? { ...it, status: "processing", error: undefined } : it))
       );
@@ -474,7 +522,12 @@ export default function App() {
     }
     if (!ensureUserKey()) return;
 
-    if (isEpsFile(item.file)) {
+    if (isEpsFile(item.file) && item.epsState === "rendering") {
+      showToast("Vector file is still rendering — please wait a moment.", "info");
+      return;
+    }
+
+    if (epsNeedsPairing(item)) {
       setImages((prev) =>
         prev.map((it) => (it.id === item.id ? { ...it, status: "processing", error: undefined } : it))
       );
@@ -530,7 +583,8 @@ export default function App() {
         )
       );
 
-      if (isEpsFile(item.file)) {
+      if (isEpsFile(item.file) && item.epsState === "rendering") continue;
+      if (epsNeedsPairing(item)) {
         markEpsFromPair(item, images, new Map());
         continue;
       }
