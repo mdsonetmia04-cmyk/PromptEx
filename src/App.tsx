@@ -110,9 +110,8 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Personal API key is mandatory — no server-key fallback (Pollinations is free, no key)
+  // Personal API key is mandatory — no server-key fallback
   const ensureUserKey = (): boolean => {
-    if (activeProviderId === "pollinations") return true;
     const ok =
       Boolean(apiKeys[activeProviderId]?.trim()) ||
       PROVIDERS.some((p) => Boolean(apiKeys[p.id]?.trim()));
@@ -266,9 +265,9 @@ export default function App() {
 
   // Analyze single image item with automatic provider & model routing
   const analyzeImageItem = async (item: ImageItem): Promise<any> => {
-    // Resolve effective provider from the user's own keys only (personal key mandatory; Pollinations is free)
+    // Resolve effective provider from the user's own keys only (personal key mandatory)
     let effectiveProvider = activeProviderId;
-    if (effectiveProvider !== "pollinations" && !apiKeys[effectiveProvider]?.trim()) {
+    if (!apiKeys[effectiveProvider]?.trim()) {
       const configuredProv = PROVIDERS.find((p) => Boolean(apiKeys[p.id]?.trim()));
       if (configuredProv) {
         effectiveProvider = configuredProv.id;
