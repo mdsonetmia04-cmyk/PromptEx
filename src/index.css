@@ -1,8 +1,12 @@
 @import "tailwindcss";
+@import url("https://fonts.cdnfonts.com/css/solaimanlipi");
 
 @layer utilities {
   .mono {
     font-family: 'JetBrains Mono', monospace;
+  }
+  .font-bangla {
+    font-family: 'SolaimanLipi', 'Noto Sans Bengali', 'Hind Siliguri', sans-serif;
   }
 }
 
