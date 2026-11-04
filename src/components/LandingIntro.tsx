@@ -183,9 +183,25 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
         </div>
       </div>
 
+      {/* START button */}
+      <div className="mt-8 flex flex-col items-center gap-3">
+        <button
+          type="button"
+          onClick={onStart}
+          className="btn-primary-3d font-bangla px-14 h-[58px] rounded-[16px] flex items-center gap-3 text-[#0E1510] cursor-pointer text-[20px] font-bold"
+          style={{ boxShadow: "0 0 44px rgba(143,191,90,0.45), 0 8px 24px rgba(0,0,0,0.4)" }}
+        >
+          <Rocket size={22} />
+          <span>শুরু করুন</span>
+        </button>
+        <div className="font-bangla text-[12.5px]" style={{ color: "#5A7565" }}>
+          ক্লিক করলেই মূল ওয়েবসাইট খুলবে
+        </div>
+      </div>
+
       {/* FAQ — সহজ বাংলায় */}
       <div
-        className="mt-8 mb-8 rounded-[20px] p-6 md:p-8"
+        className="mt-8 mb-16 rounded-[20px] p-6 md:p-8"
         style={{ background: "#141F17", border: "1px solid #233929" }}
       >
         <div
@@ -247,22 +263,6 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* START button */}
-      <div className="mt-8 mb-16 flex flex-col items-center gap-3">
-        <button
-          type="button"
-          onClick={onStart}
-          className="btn-primary-3d font-bangla px-14 h-[58px] rounded-[16px] flex items-center gap-3 text-[#0E1510] cursor-pointer text-[20px] font-bold"
-          style={{ boxShadow: "0 0 44px rgba(143,191,90,0.45), 0 8px 24px rgba(0,0,0,0.4)" }}
-        >
-          <Rocket size={22} />
-          <span>শুরু করুন</span>
-        </button>
-        <div className="font-bangla text-[12.5px]" style={{ color: "#5A7565" }}>
-          ক্লিক করলেই মূল ওয়েবসাইট খুলবে
         </div>
       </div>
     </div>
