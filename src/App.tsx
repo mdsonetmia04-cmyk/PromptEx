@@ -197,6 +197,7 @@ export default function App() {
 
   // Remove a single provider key
   const handleRemoveKey = (providerId: string) => {
+    const hadKey = Boolean(apiKeys[providerId]?.trim());
     const next: ProviderKeys = { ...apiKeys };
     delete next[providerId];
     setApiKeys(next);
@@ -209,7 +210,7 @@ export default function App() {
       const withKey = PROVIDERS.find((p) => p.id !== providerId && Boolean(next[p.id]?.trim()));
       setActiveProviderId(withKey ? withKey.id : "");
     }
-    showToast("API key removed", "info");
+    if (hadKey) showToast("API key removed", "info");
   };
 
   // Save API keys to localStorage
