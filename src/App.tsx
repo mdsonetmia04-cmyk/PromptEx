@@ -110,6 +110,18 @@ export default function App() {
     setTimeout(() => setToast(null), 4000);
   };
 
+  // Personal API key is mandatory — no server-key fallback
+  const ensureUserKey = (): boolean => {
+    const ok =
+      Boolean(apiKeys[activeProviderId]?.trim()) ||
+      PROVIDERS.some((p) => Boolean(apiKeys[p.id]?.trim()));
+    if (!ok) {
+      showToast("নিজের API key দিন — MANAGE API KEYS থেকে যোগ করুন।", "error");
+      setIsKeysModalOpen(true);
+    }
+    return ok;
+  };
+
   // Check server configuration
   useEffect(() => {
     fetch("/api/config")
@@ -253,20 +265,15 @@ export default function App() {
 
   // Analyze single image item with automatic provider & model routing
   const analyzeImageItem = async (item: ImageItem): Promise<any> => {
-    // Resolve effective provider automatically
+    // Resolve effective provider from the user's own keys only (personal key mandatory)
     let effectiveProvider = activeProviderId;
-    const currentHasKey =
-      (effectiveProvider === "gemini" && hasServerGeminiKey) ||
-      Boolean(apiKeys[effectiveProvider]?.trim());
-
-    if (!currentHasKey) {
+    if (!apiKeys[effectiveProvider]?.trim()) {
       const configuredProv = PROVIDERS.find((p) => Boolean(apiKeys[p.id]?.trim()));
       if (configuredProv) {
         effectiveProvider = configuredProv.id;
         setActiveProviderId(configuredProv.id);
-      } else if (hasServerGeminiKey) {
-        effectiveProvider = "gemini";
-        setActiveProviderId("gemini");
+      } else {
+        throw new Error("নিজের API key দিন — MANAGE API KEYS থেকে যোগ করুন।");
       }
     }
 
@@ -307,20 +314,8 @@ export default function App() {
       return;
     }
 
-    // Check key availability across any provider or server key
-    const hasAnyKey =
-      hasServerGeminiKey ||
-      Boolean(apiKeys[activeProviderId]?.trim()) ||
-      PROVIDERS.some((p) => Boolean(apiKeys[p.id]?.trim()));
-
-    if (!hasAnyKey) {
-      showToast(
-        "Please enter an API key in the API Keys section to run vision analysis.",
-        "error"
-      );
-      setIsKeysModalOpen(true);
-      return;
-    }
+    // Personal API key is mandatory
+    if (!ensureUserKey()) return;
 
     if (images.length === 0) {
       showToast("Upload images first to process metadata.", "info");
@@ -395,6 +390,7 @@ export default function App() {
       showToast("AI is currently toggled OFF", "error");
       return;
     }
+    if (!ensureUserKey()) return;
 
     setImages((prev) =>
       prev.map((it) =>
@@ -432,6 +428,7 @@ export default function App() {
       showToast("AI is currently toggled OFF", "error");
       return;
     }
+    if (!ensureUserKey()) return;
     const failedItems = images.filter((img) => img.status === "error");
     if (failedItems.length === 0) return;
 
