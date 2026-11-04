@@ -51,9 +51,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeProviderId,
   onOpenKeysModal,
 }) => {
-  const hasAnyKey =
-    hasServerGeminiKey ||
-    Object.values(apiKeys).some((k) => typeof k === "string" && Boolean(k.trim()));
+  const hasAnyKey = Object.values(apiKeys).some(
+    (k) => typeof k === "string" && Boolean(k.trim())
+  );
 
   return (
     <aside
@@ -83,8 +83,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="text-[11px] mono text-[#8CA99A] leading-relaxed mb-3">
           {hasAnyKey
-            ? "API key detected. Vision model is automatically selected based on your key."
-            : "Enter an API key to automatically route and select the optimal vision model."}
+            ? "Your own API key detected. Vision model is automatically selected based on your key."
+            : "নিজের API key আবশ্যক — MANAGE API KEYS থেকে ফ্রি key যোগ করুন।"}
         </div>
 
         <button
