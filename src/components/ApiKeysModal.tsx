@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { X, Eye, EyeOff, Sparkles, Check, Key, LoaderCircle, ShieldCheck, CircleAlert } from "lucide-react";
-import { PROVIDERS, ProviderKeys, detectProviderFromKey } from "../types";
+import { X, Eye, EyeOff, Check, Key, LoaderCircle, ShieldCheck, CircleAlert } from "lucide-react";
+import { PROVIDERS, ProviderKeys } from "../types";
 
 interface ApiKeysModalProps {
   isOpen: boolean;
@@ -27,15 +27,12 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
   const [showKeyMap, setShowKeyMap] = useState<Record<string, boolean>>({});
   const [testState, setTestState] = useState<Record<string, TestState>>({});
   const [testMessage, setTestMessage] = useState<Record<string, string>>({});
-  const [smartKeyInput, setSmartKeyInput] = useState<string>("");
-  const [autoDetectedMessage, setAutoDetectedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setLocalKeys(apiKeys);
       setTestState({});
       setTestMessage({});
-      setAutoDetectedMessage(null);
     }
   }, [isOpen, apiKeys]);
 
@@ -45,24 +42,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
     setLocalKeys((prev) => ({ ...prev, [providerId]: val }));
     setTestState((prev) => ({ ...prev, [providerId]: "idle" }));
     setTestMessage((prev) => ({ ...prev, [providerId]: "" }));
-  };
-
-  const handleSmartKeyPaste = (rawVal: string) => {
-    setSmartKeyInput(rawVal);
-    const trimmed = rawVal.trim();
-    if (!trimmed) return;
-
-    const detected = detectProviderFromKey(trimmed);
-    const targetId = detected || activeProviderId || "gemini";
-    setLocalKeys((prev) => ({ ...prev, [targetId]: trimmed }));
-    onSelectActiveProvider(targetId);
-    const prov = PROVIDERS.find((p) => p.id === targetId);
-    setAutoDetectedMessage(
-      detected
-        ? `✓ ${prov?.name || targetId} detected. Click TEST & SAVE to verify and apply this key.`
-        : `Key added to ${prov?.name || "Active Provider"}. Click TEST & SAVE to verify and apply this key.`
-    );
-    setSmartKeyInput("");
   };
 
   const handleToggleShow = (providerId: string) => {
@@ -96,7 +75,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
       onSelectActiveProvider(providerId);
       setTestState((prev) => ({ ...prev, [providerId]: "success" }));
       setTestMessage((prev) => ({ ...prev, [providerId]: "Verified & saved automatically" }));
-      setAutoDetectedMessage(`✓ ${PROVIDERS.find((p) => p.id === providerId)?.name || providerId} API verified and saved. This provider is now active for the full website.`);
     } catch (error: any) {
       setTestState((prev) => ({ ...prev, [providerId]: "error" }));
       setTestMessage((prev) => ({ ...prev, [providerId]: error?.message || "API key verification failed." }));
@@ -127,8 +105,8 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
               <Key size={15} className="text-[#8FBF5A]" />
               <span>API SETTINGS</span>
             </div>
-            <div className="mono text-[10px] mt-1 text-[#8CA99A]">
-              নিজের API key আবশ্যক। Provider select korun → key din → TEST & SAVE.
+            <div className="font-bangla text-[11.5px] mt-1 text-[#8CA99A]">
+              নিজের API key আবশ্যক। Provider-এর নামের পাশে key বসিয়ে TEST &amp; SAVE চাপ দিন — ওয়েবসাইট নিজেই key যাচাই করে model সিলেক্ট করে নেবে।
             </div>
           </div>
           <button id="modal-close-btn" onClick={onClose} className="w-[32px] h-[32px] rounded-full bg-[#1F3324] border border-[#2B4432] flex items-center justify-center text-[#8CA99A] hover:text-[#E6EFE8] hover:border-[#8FBF5A]/50 transition-colors cursor-pointer" aria-label="Close modal">
@@ -137,28 +115,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
         </div>
 
         <div className="p-5 space-y-4 overflow-y-auto scroll-hide flex-1">
-          <div className="p-3.5 rounded-[12px] bg-[#1A2A1E] border border-[#8FBF5A]/40 shadow-inner">
-            <div className="flex items-center justify-between mb-2">
-              <span className="mono text-[11px] font-semibold text-[#8FBF5A] flex items-center gap-1.5"><Sparkles size={13} /> SMART KEY DETECTION</span>
-              <span className="mono text-[9px] px-2 py-0.5 rounded bg-[#8FBF5A]/20 text-[#8FBF5A] border border-[#8FBF5A]/30">AUTO</span>
-            </div>
-            <p className="mono text-[10px] text-[#A8C5B5] mb-2 leading-relaxed">Quickly paste any supported API key. Provider detect hole নিচের correct provider row-e বসে যাবে.</p>
-            <input
-              id="smart-key-input"
-              type="password"
-              value={smartKeyInput}
-              onChange={(e) => handleSmartKeyPaste(e.target.value)}
-              placeholder="Paste API key here for automatic provider detection..."
-              className="w-full h-[38px] rounded-[8px] bg-[#0E1510] border border-[#2B4432] px-3 mono text-[11px] text-[#E6EFE8] outline-none focus:border-[#8FBF5A] placeholder:text-[#6B8A7A]"
-            />
-          </div>
-
-          {autoDetectedMessage && (
-            <div className="p-3 rounded-[10px] bg-[#1E3325] border border-[#8FBF5A] flex items-center gap-2 mono text-[11px] text-[#8FBF5A] animate-fadeIn">
-              <Check size={14} className="shrink-0" /><span>{autoDetectedMessage}</span>
-            </div>
-          )}
-
           <div className="px-3 py-2.5 rounded-[9px] bg-[#0E1510] border border-[#2B4432] flex items-center justify-between">
             <span className="mono text-[10px] text-[#6B8A7A]">ACTIVE PROVIDER / MODEL</span>
             <span className="mono text-[11px] font-semibold text-[#8FBF5A] flex items-center gap-1.5">
