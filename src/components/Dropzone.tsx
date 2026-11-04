@@ -8,7 +8,7 @@ interface DropzoneProps {
   onBrowseClick: () => void;
 }
 
-const FORMATS = ["JPG", "PNG", "WEBP", "SVG"];
+const FORMATS = ["JPG", "PNG", "WEBP", "SVG", "EPS"];
 
 export const Dropzone: React.FC<DropzoneProps> = ({
   mode,
@@ -37,7 +37,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
   const isMetadata = mode === "metadata";
 
   return (
-    <div className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2">
+    <div className="max-w-[880px] mx-auto mt-6 md:mt-10 px-2">
       {/* Mode badge */}
       <div className="flex justify-center mb-5">
         <div
@@ -69,7 +69,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={onBrowseClick}
-          className="rounded-[14px] border-dashed border-[1.5px] flex flex-col items-center justify-center py-12 md:py-16 px-6 text-center transition-all duration-300 cursor-pointer"
+          className="rounded-[14px] border-dashed border-[1.5px] flex flex-col items-center justify-center py-8 md:py-10 px-6 text-center transition-all duration-300 cursor-pointer"
           style={{
             borderColor: isDragOver ? "#8FBF5A" : "#324E3A",
             background: isDragOver ? "rgba(143,191,90,0.10)" : "rgba(14,21,16,0.55)",
@@ -78,7 +78,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
         >
           {/* Glowing upload icon */}
           <div
-            className="w-[64px] h-[64px] rounded-[18px] flex items-center justify-center mb-5 transition-all duration-300"
+            className="w-[56px] h-[56px] rounded-[16px] flex items-center justify-center mb-4 transition-all duration-300"
             style={{
               background: "linear-gradient(135deg, #243B29 0%, #1A2A1E 100%)",
               border: "1px solid rgba(143,191,90,0.45)",
@@ -86,7 +86,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
               transform: isDragOver ? "scale(1.12)" : "scale(1)",
             }}
           >
-            <Upload size={26} color="#B4E677" />
+            <Upload size={22} color="#B4E677" />
           </div>
 
           <div className="text-[16px] md:text-[17px] font-semibold tracking-wide text-[#F2F7F0]">
@@ -103,7 +103,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           </div>
 
           {/* Format pills */}
-          <div className="flex items-center gap-2 mt-4 flex-wrap justify-center">
+          <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
             {FORMATS.map((f) => (
               <span
                 key={f}
@@ -122,7 +122,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           {/* CTA */}
           <button
             type="button"
-            className="btn-primary-3d mt-7 mono text-[12px] tracking-[0.18em] font-semibold px-8 h-[42px] rounded-[12px] flex items-center gap-2.5 text-[#0E1510] cursor-pointer"
+            className="btn-primary-3d mt-6 mono text-[12px] tracking-[0.18em] font-semibold px-8 h-[42px] rounded-[12px] flex items-center gap-2.5 text-[#0E1510] cursor-pointer"
             style={{ boxShadow: "0 0 24px rgba(143,191,90,0.35)" }}
           >
             <Upload size={15} />
@@ -130,7 +130,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
           </button>
 
           <div
-            className="font-bangla text-[12.5px] mt-5 flex items-center justify-center gap-1.5"
+            className="font-bangla text-[12.5px] mt-4 flex items-center justify-center gap-1.5"
             style={{ color: "#B4E677" }}
           >
             <KeyRound size={14} />
@@ -140,7 +140,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
       </div>
 
       <p
-        className="text-center mono text-[11px] leading-relaxed mt-5 max-w-[560px] mx-auto"
+        className="text-center mono text-[11px] leading-relaxed mt-4 max-w-[560px] mx-auto"
         style={{ color: "#5A7565" }}
       >
         {isMetadata
