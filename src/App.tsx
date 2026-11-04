@@ -37,6 +37,10 @@ export default function App() {
   const [isContactModalOpen, setIsContactModalOpen] = useState<boolean>(false);
   const [started, setStarted] = useState<boolean>(false);
 
+  const hasAnyKey = Object.values(apiKeys).some(
+    (k) => typeof k === "string" && Boolean(k.trim())
+  );
+
   const [images, setImages] = useState<ImageItem[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<StockPlatform[]>([
     "AdobeStock",
@@ -543,6 +547,8 @@ export default function App() {
           showToast(`AI is now ${!aiEnabled ? "ON" : "OFF"}`);
         }}
         onOpenContact={() => setIsContactModalOpen(true)}
+        onOpenKeysModal={() => setIsKeysModalOpen(true)}
+        hasAnyKey={hasAnyKey}
       />
 
       {/* Main App Body */}
