@@ -1,4 +1,4 @@
-const PROVIDERS = ["gemini", "groq", "openrouter", "together", "mistral", "huggingface", "pollinations"];
+const PROVIDERS = ["gemini", "groq", "openrouter", "together", "mistral", "huggingface"];
 
 function cleanKey(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -22,9 +22,6 @@ export default async function handler(req: any, res: any) {
     const apiKey = cleanKey(req.body?.apiKey);
     if (!PROVIDERS.includes(provider)) {
       return res.status(400).json({ success: false, error: "Unsupported API provider." });
-    }
-    if (provider === "pollinations") {
-      return res.status(200).json({ success: true, provider, message: "Pollinations is free — no API key needed." });
     }
     if (!apiKey) {
       return res.status(400).json({ success: false, error: "API key is required." });
