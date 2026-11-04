@@ -52,6 +52,7 @@ const FAQS = [
 export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => {
   const isMetadata = mode === "metadata";
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openStep, setOpenStep] = useState<number | null>(null);
 
   return (
     <div id="landing-intro" className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2" style={{ background: "radial-gradient(ellipse 75% 480px at 50% -40px, rgba(143,191,90,0.09) 0%, rgba(143,191,90,0) 70%)" }}>
@@ -122,39 +123,63 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
         >
           মাত্র ৪টি সহজ ধাপে শুরু করুন
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
-          {HOW_STEPS.map((st, i) => (
-            <div
-              key={i}
-              className="rounded-[14px] p-4 flex items-start gap-3.5"
-              style={{ background: "#0E1510", border: "1px solid #233929" }}
-            >
+        <div className="flex flex-col gap-3 mt-6">
+          {HOW_STEPS.map((st, i) => {
+            const isOpen = openStep === i;
+            return (
               <div
-                className="font-bangla w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 text-[16px] font-bold"
+                key={i}
+                className="rounded-[14px] overflow-hidden transition-colors"
                 style={{
-                  background: "rgba(143,191,90,0.12)",
-                  border: "1px solid rgba(143,191,90,0.4)",
-                  color: "#B4E677",
+                  background: "#0E1510",
+                  border: isOpen ? "1px solid rgba(143,191,90,0.45)" : "1px solid #233929",
                 }}
               >
-                {["১", "২", "৩", "৪"][i]}
-              </div>
-              <div>
-                <div
-                  className="font-bangla text-[14.5px] font-bold"
-                  style={{ color: "#E6EFE8" }}
+                <button
+                  type="button"
+                  onClick={() => setOpenStep(isOpen ? null : i)}
+                  className="w-full flex items-center gap-3.5 p-4 text-left cursor-pointer"
+                  aria-expanded={isOpen}
                 >
-                  {st.title}
-                </div>
+                  <div
+                    className="font-bangla w-[38px] h-[38px] rounded-full flex items-center justify-center shrink-0 text-[16px] font-bold"
+                    style={{
+                      background: "rgba(143,191,90,0.12)",
+                      border: "1px solid rgba(143,191,90,0.4)",
+                      color: "#B4E677",
+                    }}
+                  >
+                    {["১", "২", "৩", "৪"][i]}
+                  </div>
+                  <span
+                    className="font-bangla text-[14.5px] font-bold flex-1 transition-colors"
+                    style={{ color: isOpen ? "#B4E677" : "#E6EFE8" }}
+                  >
+                    {st.title}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    color={isOpen ? "#B4E677" : "#6B8A7A"}
+                  />
+                </button>
                 <div
-                  className="font-bangla text-[12.5px] leading-relaxed mt-1"
-                  style={{ color: "#8CA99A" }}
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
                 >
-                  {st.desc}
+                  <div className="overflow-hidden">
+                    <div
+                      className="px-4 pb-4 pl-[68px] font-bangla text-[12.5px] leading-relaxed"
+                      style={{ color: "#8CA99A" }}
+                    >
+                      {st.desc}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
