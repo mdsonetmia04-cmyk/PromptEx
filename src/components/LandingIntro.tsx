@@ -170,7 +170,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
                 >
                   <div className="overflow-hidden">
                     <div
-                      className="px-4 pb-4 pl-[68px] font-bangla text-[12.5px] leading-relaxed"
+                      className="px-4 pb-4 pl-[68px] font-bangla text-[12.5px] leading-[1.9]"
                       style={{ color: "#8CA99A" }}
                     >
                       {st.desc}
@@ -253,7 +253,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
                 >
                   <div className="overflow-hidden">
                     <div
-                      className="px-4 pb-4 font-bangla text-[12.5px] leading-relaxed"
+                      className="px-4 pb-4 font-bangla text-[12.5px] leading-[1.9]"
                       style={{ color: "#8CA99A" }}
                     >
                       {f.a}
