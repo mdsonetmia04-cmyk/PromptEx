@@ -188,7 +188,7 @@ export default function App() {
       reader.onload = () => {
         const result = reader.result as string;
         const b64 = result.split(",")[1];
-        resolve({ b64, mime: file.type || "image/jpeg", preview: result });
+        resolve({ b64, mime: file.type || (/\.eps$/i.test(file.name) ? "application/postscript" : "image/jpeg"), preview: result });
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
@@ -199,11 +199,11 @@ export default function App() {
   const processFiles = useCallback(
     async (fileList: FileList | File[]) => {
       const validFiles = Array.from(fileList).filter(
-        (f) => f.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|svg)$/i.test(f.name)
+        (f) => f.type.startsWith("image/") || /\.(jpg|jpeg|png|webp|svg|eps)$/i.test(f.name)
       );
 
       if (validFiles.length === 0) {
-        showToast("Please select valid image files (JPG, PNG, WEBP, SVG)", "error");
+        showToast("Please select valid image files (JPG, PNG, WEBP, SVG, EPS)", "error");
         return;
       }
 
@@ -334,6 +334,48 @@ export default function App() {
     return data;
   };
 
+  // EPS vectors: vision AI cannot read PostScript, so an EPS inherits metadata
+  // from a same-basename raster preview (the standard microstock EPS+JPG workflow).
+  const isEpsFile = (f: File) => /\.eps$/i.test(f.name || "");
+  const EPS_PAIR_ERROR =
+    "Add a JPG/PNG preview with the same file name \u2014 AI vision cannot read EPS directly.";
+
+  const findEpsPairResult = (
+    epsItem: ImageItem,
+    snapshot: ImageItem[],
+    fresh: Map<string, AnalysisResult>
+  ): AnalysisResult | null => {
+    const base = epsItem.file.name.replace(/\.eps$/i, "").toLowerCase();
+    const sibling = snapshot.find(
+      (it) =>
+        it.id !== epsItem.id &&
+        !isEpsFile(it.file) &&
+        it.file.name.replace(/\.[^.]+$/, "").toLowerCase() === base
+    );
+    if (!sibling) return null;
+    return fresh.get(sibling.id) || sibling.result || null;
+  };
+
+  const markEpsFromPair = (
+    epsItem: ImageItem,
+    snapshot: ImageItem[],
+    fresh: Map<string, AnalysisResult>
+  ) => {
+    const pairResult = findEpsPairResult(epsItem, snapshot, fresh);
+    if (pairResult) {
+      const result: AnalysisResult = JSON.parse(JSON.stringify(pairResult));
+      setImages((prev) =>
+        prev.map((it) => (it.id === epsItem.id ? { ...it, status: "done", result } : it))
+      );
+    } else {
+      setImages((prev) =>
+        prev.map((it) =>
+          it.id === epsItem.id ? { ...it, status: "error", error: EPS_PAIR_ERROR } : it
+        )
+      );
+    }
+  };
+
   // Process all idle or pending images
   const handleProcessAll = async () => {
     if (!aiEnabled) {
@@ -351,8 +393,11 @@ export default function App() {
 
     setIsProcessing(true);
 
+    const freshResults = new Map<string, AnalysisResult>();
+
+    // Pass 1 — raster images go through real vision AI
     for (const item of images) {
-      if (item.status === "done") continue;
+      if (item.status === "done" || isEpsFile(item.file)) continue;
 
       setImages((prev) =>
         prev.map((it) =>
@@ -368,6 +413,7 @@ export default function App() {
           baseTitle,
           title: formatTitleWithAffixes(baseTitle, titlePrefix, titleSuffix),
         };
+        freshResults.set(item.id, result);
         setImages((prev) =>
           prev.map((it) =>
             it.id === item.id ? { ...it, status: "done", result } : it
@@ -396,6 +442,15 @@ export default function App() {
       await new Promise((resolve) => setTimeout(resolve, 400));
     }
 
+    // Pass 2 — EPS vectors inherit metadata from their same-name raster preview
+    for (const item of images) {
+      if (item.status === "done" || !isEpsFile(item.file)) continue;
+      setImages((prev) =>
+        prev.map((it) => (it.id === item.id ? { ...it, status: "processing", error: undefined } : it))
+      );
+      markEpsFromPair(item, images, freshResults);
+    }
+
     setIsProcessing(false);
     setImages((current) => {
       const doneCount = current.filter((it) => it.status === "done").length;
@@ -418,6 +473,14 @@ export default function App() {
       return;
     }
     if (!ensureUserKey()) return;
+
+    if (isEpsFile(item.file)) {
+      setImages((prev) =>
+        prev.map((it) => (it.id === item.id ? { ...it, status: "processing", error: undefined } : it))
+      );
+      markEpsFromPair(item, images, new Map());
+      return;
+    }
 
     setImages((prev) =>
       prev.map((it) =>
@@ -466,6 +529,11 @@ export default function App() {
           it.id === item.id ? { ...it, status: "processing", error: undefined } : it
         )
       );
+
+      if (isEpsFile(item.file)) {
+        markEpsFromPair(item, images, new Map());
+        continue;
+      }
 
       try {
         const rawResult = await analyzeImageItem(item);
@@ -874,7 +942,7 @@ export default function App() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,.jpg,.jpeg,.png,.webp,.svg"
+            accept="image/*,.jpg,.jpeg,.png,.webp,.svg,.eps"
             multiple
             className="hidden"
             onChange={async (e) => {
