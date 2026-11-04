@@ -68,7 +68,7 @@ export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof pars
   const provider = body.provider || "gemini";
   const key = body.apiKey?.trim() || ""; // personal key mandatory — no server fallback
   if (!body.imageBase64) throw Object.assign(new Error("Missing imageBase64 data"), { status: 400 });
-  if (!key && provider !== "pollinations") throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
+  if (!key) throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
   const prompt = buildSystemPrompt(body);
   let raw = "";
   const dataUrl = `data:${body.mimeType || "image/jpeg"};base64,${body.imageBase64}`;
@@ -87,7 +87,6 @@ export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof pars
   else if (provider === "together") raw = await openAICompatible("https://api.together.xyz/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo", prompt, dataUrl);
   else if (provider === "mistral") raw = await openAICompatible("https://api.mistral.ai/v1/chat/completions", key, "pixtral-12b-2409", prompt, dataUrl);
   else if (provider === "huggingface") raw = await openAICompatible("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision", prompt, dataUrl);
- else if (provider === "pollinations") raw = await openAICompatible("https://text.pollinations.ai/openai", "", "openai", prompt, dataUrl);
   else throw Object.assign(new Error(`Unsupported provider: ${provider}`), { status: 400 });
   if (!raw) throw new Error("AI provider returned an empty response.");
   return parseModelOutput(raw, body.singleWordOnly ?? true, body.minKeywords ?? 15, body.maxKeywords ?? 49);
