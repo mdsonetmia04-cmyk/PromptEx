@@ -66,7 +66,7 @@ async function openAICompatible(url: string, key: string, model: string, prompt:
 
 export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof parseModelOutput>> {
   const provider = body.provider || "gemini";
-  const key = body.apiKey?.trim() || (provider === "gemini" ? process.env.GEMINI_API_KEY?.trim() : "");
+  const key = body.apiKey?.trim() || ""; // personal key mandatory — no server fallback
   if (!body.imageBase64) throw Object.assign(new Error("Missing imageBase64 data"), { status: 400 });
   if (!key) throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
   const prompt = buildSystemPrompt(body);
