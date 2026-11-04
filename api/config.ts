@@ -1,4 +1,4 @@
-const PROVIDERS = ["gemini", "groq", "openrouter", "together", "mistral", "huggingface", "cohere"];
+const PROVIDERS = ["gemini", "groq", "openrouter", "together", "mistral", "huggingface", "pollinations"];
 
 function cleanKey(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -23,6 +23,9 @@ export default async function handler(req: any, res: any) {
     if (!PROVIDERS.includes(provider)) {
       return res.status(400).json({ success: false, error: "Unsupported API provider." });
     }
+    if (provider === "pollinations") {
+      return res.status(200).json({ success: true, provider, message: "Pollinations is free — no API key needed." });
+    }
     if (!apiKey) {
       return res.status(400).json({ success: false, error: "API key is required." });
     }
@@ -38,8 +41,6 @@ export default async function handler(req: any, res: any) {
       response = await fetch("https://api.together.xyz/v1/models", { headers: { Authorization: `Bearer ${apiKey}` } });
     } else if (provider === "mistral") {
       response = await fetch("https://api.mistral.ai/v1/models", { headers: { Authorization: `Bearer ${apiKey}` } });
-    } else if (provider === "cohere") {
-      response = await fetch("https://api.cohere.ai/v1/models", { headers: { Authorization: `Bearer ${apiKey}` } });
     } else {
       // HuggingFace has public model-list endpoints, so validate the token against
       // the authenticated whoami endpoint instead of a public catalog endpoint.
