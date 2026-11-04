@@ -32,7 +32,7 @@ const FEATURES = [
 const HOW_STEPS = [
   {
     title: "ফ্রি API Key নিন",
-    desc: "aistudio.google.com থেকে ফ্রি Gemini API key সংগ্রহ করুন — মাত্র ১ মিনিট লাগে।",
+    desc: "aistudio.google.com থেকে ফ্রি Gemini API key নিন — অথবা key ছাড়াই Pollinations ব্যবহার করুন।",
   },
   {
     title: "Key যোগ করুন",
@@ -63,7 +63,7 @@ const FAQS = [
   },
   {
     q: "Key ছাড়া কি ব্যবহার করা যাবে?",
-    a: "না। এখন প্রত্যেকের নিজের API key দেওয়া বাধ্যতামূলক।",
+    a: "হ্যাঁ! Pollinations সিলেক্ট করলে কোনো key ছাড়াই ফ্রি ব্যবহার করা যায়। তবে নিজের Gemini key-তে সবচেয়ে ভালো ও দ্রুত রেজাল্ট পাবেন।",
   },
   {
     q: "কোন ধরনের ছবি আপলোড করা যায়?",
@@ -242,7 +242,7 @@ export const Dropzone: React.FC<DropzoneProps> = ({
             style={{ color: "#B4E677" }}
           >
             <KeyRound size={14} />
-            <span>ব্যবহারের জন্য নিজের ফ্রি Gemini API key আবশ্যক</span>
+            <span>নিজের ফ্রি API key দিয়ে শুরু করুন — অথবা Pollinations ফ্রি ব্যবহার করুন</span>
           </div>
         </div>
       </div>
