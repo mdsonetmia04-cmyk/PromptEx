@@ -54,7 +54,23 @@ export default function App() {
   const [customPrompt, setCustomPrompt] = useState<string>("");
   const [titlePrefix, setTitlePrefix] = useState<string>("");
   const [titleSuffix, setTitleSuffix] = useState<string>("");
+  const [titleCase, setTitleCase] = useState<string>("title");
+  const [maxTitleLength, setMaxTitleLength] = useState<number>(200);
+  const [bannedWords, setBannedWords] = useState<string>("");
+  const [temperature, setTemperature] = useState<number>(0.4);
+  const [promptDetail, setPromptDetail] = useState<string>("detailed");
   const [toast, setToast] = useState<{ message: string; type: "info" | "error" | "success" } | null>(null);
+
+  const applyTitleCase = (t: string): string => {
+    const s = String(t || "");
+    if (titleCase === "upper") return s.toUpperCase();
+    if (titleCase === "lower") return s.toLowerCase();
+    if (titleCase === "sentence") return s.length ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+    const small = new Set(["a", "an", "the", "and", "or", "but", "of", "in", "on", "at", "to", "for", "with", "by", "from", "as", "vs"]);
+    return s.toLowerCase().split(/(\s+)/).map((w, i) =>
+      !w || /^\s+$/.test(w) ? w : (i > 0 && small.has(w.replace(/[^a-z]/g, "")) ? w : w.charAt(0).toUpperCase() + w.slice(1))
+    ).join("");
+  };
 
   const formatTitleWithAffixes = (
     base: string,
@@ -70,7 +86,7 @@ export default function App() {
     if (s) {
       cleanBase = `${cleanBase} ${s}`;
     }
-    return cleanBase;
+    return applyTitleCase(cleanBase);
   };
 
   const handleChangeTitlePrefix = (newPrefix: string) => {
@@ -302,6 +318,11 @@ export default function App() {
         singleWordOnly,
         customPrompt,
         platforms: selectedPlatforms,
+        titleCase,
+        maxTitleLength,
+        bannedWords,
+        temperature,
+        promptDetail,
       }),
     });
 
@@ -583,6 +604,16 @@ export default function App() {
           hasServerGeminiKey={hasServerGeminiKey}
           activeProviderId={activeProviderId}
           onOpenKeysModal={() => setIsKeysModalOpen(true)}
+          titleCase={titleCase}
+          onChangeTitleCase={setTitleCase}
+          maxTitleLength={maxTitleLength}
+          onChangeMaxTitleLength={setMaxTitleLength}
+          bannedWords={bannedWords}
+          onChangeBannedWords={setBannedWords}
+          temperature={temperature}
+          onChangeTemperature={setTemperature}
+          promptDetail={promptDetail}
+          onChangePromptDetail={setPromptDetail}
         />
 
         {/* Main Workspace */}
