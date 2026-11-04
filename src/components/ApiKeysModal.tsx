@@ -128,7 +128,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
               <span>API SETTINGS</span>
             </div>
             <div className="mono text-[10px] mt-1 text-[#8CA99A]">
-              Provider select korun → API key din → TEST & SAVE. Success hole automatically save & active hobe.
+              নিজের API key আবশ্যক। Provider select korun → key din → TEST & SAVE.
             </div>
           </div>
           <button id="modal-close-btn" onClick={onClose} className="w-[32px] h-[32px] rounded-full bg-[#1F3324] border border-[#2B4432] flex items-center justify-center text-[#8CA99A] hover:text-[#E6EFE8] hover:border-[#8FBF5A]/50 transition-colors cursor-pointer" aria-label="Close modal">
@@ -172,8 +172,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
             {PROVIDERS.map((prov) => {
               const isSelected = activeProviderId === prov.id;
               const hasKey = Boolean(localKeys[prov.id]?.trim());
-              const hasEnvGemini = prov.id === "gemini" && hasServerGeminiKey;
-              const isConfigured = hasKey || hasEnvGemini;
+              const isConfigured = hasKey;
               const isVisible = Boolean(showKeyMap[prov.id]);
               const state = testState[prov.id] || "idle";
 
@@ -186,7 +185,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                       <span className="mono text-[9px] px-1.5 py-0.5 rounded bg-[#142017] border border-[#2B4432] text-[#8CA99A] truncate">{prov.model}</span>
                       {isSelected && <span className="mono text-[8px] px-1.5 py-0.5 rounded-full bg-[#8FBF5A] text-[#0E1510] font-semibold shrink-0">ACTIVE</span>}
                     </div>
-                    {hasEnvGemini && !hasKey && <span className="mono text-[8px] px-1.5 py-0.5 rounded bg-[#8FBF5A]/20 text-[#8FBF5A] border border-[#8FBF5A]/30 shrink-0">ENV READY</span>}
+                    
                   </div>
 
                   <div className="flex gap-2 items-center">
@@ -195,7 +194,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                         id={`key-input-${prov.id}`}
                         value={localKeys[prov.id] || ""}
                         onChange={(e) => handleKeyChange(prov.id, e.target.value)}
-                        placeholder={hasEnvGemini ? "Server key ready — or paste your own key" : `Paste ${prov.name} API key`}
+                        placeholder={`Paste ${prov.name} API key`}
                         type={isVisible ? "text" : "password"}
                         className="w-full h-[40px] rounded-[8px] bg-[#0E1510] border border-[#2B4432] pl-3 pr-9 mono text-[11px] text-[#E6EFE8] outline-none focus:border-[#8FBF5A]/70 placeholder:text-[#6B8A7A]"
                       />
