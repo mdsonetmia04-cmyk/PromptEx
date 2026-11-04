@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="text-[11px] mono text-[#8CA99A] leading-relaxed mb-3">
           {hasAnyKey
             ? "Your own API key detected. Vision model is automatically selected based on your key."
-            : "নিজের API key দিন — অথবা key ছাড়াই ফ্রি Pollinations ব্যবহার করুন।"}
+            : "নিজের API key আবশ্যক — MANAGE API KEYS থেকে ফ্রি key যোগ করুন।"}
         </div>
 
         <button
