@@ -282,7 +282,7 @@ export const ImageCard: React.FC<ImageCardProps> = ({
           <div className="space-y-2">
             <div className="mono text-[11px] flex gap-2 text-red-300 bg-red-950/20 border border-red-900/30 p-2.5 rounded-[8px]">
               <CircleAlert size={14} className="shrink-0 mt-0.5 text-red-400" />
-              <span className="break-all">{item.error}</span>
+              <span className={`break-all ${/[\u0980-\u09FF]/.test(item.error || "") ? "font-bangla" : ""}`}>{item.error}</span>
             </div>
             <button
               onClick={() => onRetry(item)}
