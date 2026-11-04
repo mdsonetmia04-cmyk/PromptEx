@@ -1,31 +1,11 @@
 import React, { useState } from "react";
-import { Sparkles, Zap, Tags, Layers, Rocket, ChevronDown } from "lucide-react";
+import { Rocket, ChevronDown } from "lucide-react";
 import { ExecutionMode } from "../types";
 
 interface LandingIntroProps {
   mode: ExecutionMode;
   onStart: () => void;
 }
-
-const PLATFORMS = ["AdobeStock", "Shutterstock", "Freepik", "Pond5", "Vecteezy"];
-
-const FEATURES = [
-  {
-    icon: Zap,
-    title: "Batch Processing",
-    desc: "Upload dozens of images and process them all at once",
-  },
-  {
-    icon: Tags,
-    title: "SEO Titles & Keywords",
-    desc: "Optimized titles and 15–49 high-value keywords per image",
-  },
-  {
-    icon: Layers,
-    title: "5 Stock Platforms",
-    desc: "Metadata tuned for every major microstock marketplace",
-  },
-];
 
 const HOW_STEPS = [
   {
@@ -75,22 +55,6 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
 
   return (
     <div id="landing-intro" className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2" style={{ background: "radial-gradient(ellipse 75% 480px at 50% -40px, rgba(143,191,90,0.09) 0%, rgba(143,191,90,0) 70%)" }}>
-      {/* Eyebrow badge */}
-      <div className="flex justify-center mb-5">
-        <div
-          className="mono text-[10px] tracking-[0.22em] px-4 py-1.5 rounded-full flex items-center gap-2"
-          style={{
-            color: "#B4E677",
-            background: "rgba(143,191,90,0.08)",
-            border: "1px solid rgba(143,191,90,0.35)",
-            boxShadow: "0 0 18px rgba(143,191,90,0.12)",
-          }}
-        >
-          <Sparkles size={12} color="#B4E677" />
-          AI-POWERED MICROSTOCK STUDIO
-        </div>
-      </div>
-
       {/* Headline */}
       <h1
         className="text-center font-semibold tracking-tight leading-[1.12] text-[32px] md:text-[48px]"
@@ -136,60 +100,6 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
           ? "Upload your photos — real vision AI writes optimized titles, keywords and prompts for Adobe Stock, Shutterstock, Freepik and more. Batch upload supported."
           : "Drop in any image — real vision AI reverse-engineers it into a detailed, reusable generation prompt in seconds."}
       </p>
-
-      {/* Feature cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
-        {FEATURES.map((f) => (
-          <div
-            key={f.title}
-            className="rounded-[14px] p-4 flex items-start gap-3 transition-all hover:-translate-y-0.5"
-            style={{
-              background: "#141F17",
-              border: "1px solid #233929",
-            }}
-          >
-            <div
-              className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center shrink-0"
-              style={{
-                background: "rgba(143,191,90,0.10)",
-                border: "1px solid rgba(143,191,90,0.30)",
-              }}
-            >
-              <f.icon size={16} color="#8FBF5A" />
-            </div>
-            <div>
-              <div className="mono text-[11.5px] font-semibold tracking-wide text-[#E6EFE8]">
-                {f.title}
-              </div>
-              <div className="mono text-[10.5px] leading-relaxed mt-1" style={{ color: "#6B8A7A" }}>
-                {f.desc}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Platform strip */}
-      <div className="mt-8 mb-4 flex flex-col items-center gap-3">
-        <div className="mono text-[9.5px] tracking-[0.28em]" style={{ color: "#5A7565" }}>
-          OPTIMIZED FOR
-        </div>
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          {PLATFORMS.map((p) => (
-            <span
-              key={p}
-              className="mono text-[10.5px] tracking-wider px-3.5 py-1.5 rounded-full"
-              style={{
-                color: "#B4E677",
-                background: "rgba(143,191,90,0.07)",
-                border: "1px solid rgba(143,191,90,0.22)",
-              }}
-            >
-              {p}
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* How it works — সহজ বাংলায় */}
       <div
