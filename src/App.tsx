@@ -531,7 +531,7 @@ export default function App() {
           ) : (
             <span className="w-2 h-2 rounded-full bg-[#8FBF5A] shrink-0" />
           )}
-          <span>{toast.message}</span>
+          <span className={/[\u0980-\u09FF]/.test(toast.message) ? "font-bangla text-[12px]" : undefined}>{toast.message}</span>
         </div>
       )}
 
