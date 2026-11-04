@@ -107,7 +107,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   Md Sonet Mia
                 </div>
                 <div className="mono text-[10px] text-[#8FBF5A] flex items-center gap-1.5 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#8FBF5A] animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#8FBF5A]" />
                   <span>Creator & Developer</span>
                 </div>
               </div>
