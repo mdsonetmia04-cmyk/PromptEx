@@ -1,5 +1,5 @@
-import React from "react";
-import { Sparkles, Zap, Tags, Layers, Rocket } from "lucide-react";
+import React, { useState } from "react";
+import { Sparkles, Zap, Tags, Layers, Rocket, ChevronDown } from "lucide-react";
 import { ExecutionMode } from "../types";
 
 interface LandingIntroProps {
@@ -71,6 +71,7 @@ const FAQS = [
 
 export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => {
   const isMetadata = mode === "metadata";
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <div id="landing-intro" className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2" style={{ background: "radial-gradient(ellipse 75% 480px at 50% -40px, rgba(143,191,90,0.09) 0%, rgba(143,191,90,0) 70%)" }}>
@@ -262,29 +263,55 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
           className="font-bangla text-center text-[13px] mt-1.5"
           style={{ color: "#8CA99A" }}
         >
-          যা যা জানতে চান
+          উত্তর দেখতে প্রশ্নে ক্লিক করুন
         </div>
         <div className="mt-6 flex flex-col gap-3">
-          {FAQS.map((f, i) => (
-            <div
-              key={i}
-              className="rounded-[14px] p-4"
-              style={{ background: "#0E1510", border: "1px solid #233929" }}
-            >
+          {FAQS.map((f, i) => {
+            const isOpen = openFaq === i;
+            return (
               <div
-                className="font-bangla text-[14px] font-bold"
-                style={{ color: "#B4E677" }}
+                key={i}
+                className="rounded-[14px] overflow-hidden transition-colors"
+                style={{
+                  background: "#0E1510",
+                  border: isOpen ? "1px solid rgba(143,191,90,0.45)" : "1px solid #233929",
+                }}
               >
-                {f.q}
+                <button
+                  type="button"
+                  onClick={() => setOpenFaq(isOpen ? null : i)}
+                  className="w-full flex items-center justify-between gap-3 p-4 text-left cursor-pointer"
+                  aria-expanded={isOpen}
+                >
+                  <span
+                    className="font-bangla text-[14px] font-bold transition-colors"
+                    style={{ color: isOpen ? "#B4E677" : "#E6EFE8" }}
+                  >
+                    {f.q}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                    color={isOpen ? "#B4E677" : "#6B8A7A"}
+                  />
+                </button>
+                <div
+                  className={`grid transition-all duration-300 ease-in-out ${
+                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div
+                      className="px-4 pb-4 font-bangla text-[12.5px] leading-relaxed"
+                      style={{ color: "#8CA99A" }}
+                    >
+                      {f.a}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div
-                className="font-bangla text-[12.5px] leading-relaxed mt-1.5"
-                style={{ color: "#8CA99A" }}
-              >
-                {f.a}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
