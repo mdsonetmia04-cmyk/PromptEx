@@ -159,6 +159,23 @@ export default function App() {
       });
   }, []);
 
+  // Remove a single provider key
+  const handleRemoveKey = (providerId: string) => {
+    const next: ProviderKeys = { ...apiKeys };
+    delete next[providerId];
+    setApiKeys(next);
+    try {
+      localStorage.setItem(STORAGE_KEYS_PREFIX, JSON.stringify(next));
+    } catch (e) {
+      console.error(e);
+    }
+    if (activeProviderId === providerId) {
+      const withKey = PROVIDERS.find((p) => p.id !== providerId && Boolean(next[p.id]?.trim()));
+      setActiveProviderId(withKey ? withKey.id : "");
+    }
+    showToast("API key removed", "info");
+  };
+
   // Save API keys to localStorage
   const handleSaveKeys = (newKeys: ProviderKeys) => {
     setApiKeys(newKeys);
@@ -1025,6 +1042,7 @@ export default function App() {
         onClose={() => setIsKeysModalOpen(false)}
         apiKeys={apiKeys}
         onSaveKeys={handleSaveKeys}
+        onRemoveKey={handleRemoveKey}
         activeProviderId={activeProviderId}
         onSelectActiveProvider={(id) => {
           setActiveProviderId(id);
