@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
             id="settings-btn"
             type="button"
             onClick={() => setSettingsOpen((v) => !v)}
-            className="btn-secondary-3d mono text-[11px] tracking-widest px-3 md:px-4 h-[32px] flex items-center gap-2 rounded-[8px] text-[#E6EFE8] cursor-pointer hover:text-[#8FBF5A] transition-colors"
+            className={`btn-secondary-3d mono text-[11px] tracking-widest px-3 md:px-4 h-[32px] flex items-center gap-2 rounded-[8px] text-[#E6EFE8] cursor-pointer hover:text-[#8FBF5A] transition-colors ${settingsOpen ? "relative z-50" : ""}`}
             aria-expanded={settingsOpen}
           >
             <Settings2 size={13} className="text-[#8FBF5A] shrink-0" />
