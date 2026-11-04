@@ -128,7 +128,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
               <span>API SETTINGS</span>
             </div>
             <div className="mono text-[10px] mt-1 text-[#8CA99A]">
-              নিজের API key দিন — অথবা নিচে Pollinations ফ্রি ব্যবহার করুন (key লাগে না)।
+              নিজের API key আবশ্যক। Provider select korun → key din → TEST & SAVE.
             </div>
           </div>
           <button id="modal-close-btn" onClick={onClose} className="w-[32px] h-[32px] rounded-full bg-[#1F3324] border border-[#2B4432] flex items-center justify-center text-[#8CA99A] hover:text-[#E6EFE8] hover:border-[#8FBF5A]/50 transition-colors cursor-pointer" aria-label="Close modal">
@@ -172,7 +172,7 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
             {PROVIDERS.map((prov) => {
               const isSelected = activeProviderId === prov.id;
               const hasKey = Boolean(localKeys[prov.id]?.trim());
-              const isConfigured = hasKey || prov.id === "pollinations";
+              const isConfigured = hasKey;
               const isVisible = Boolean(showKeyMap[prov.id]);
               const state = testState[prov.id] || "idle";
 
@@ -188,19 +188,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                     
                   </div>
 
-                  {prov.id === "pollinations" ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onSelectActiveProvider("pollinations");
-                        onClose();
-                      }}
-                      className="w-full h-[42px] rounded-[8px] mono text-[10px] font-semibold tracking-widest bg-[#8FBF5A] text-[#0E1510] hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Sparkles size={14} />
-                      <span>USE FREE — NO KEY NEEDED</span>
-                    </button>
-                  ) : (
                   <div className="flex gap-2 items-center">
                     <div className="relative flex-1 min-w-0">
                       <input
@@ -226,7 +213,6 @@ export const ApiKeysModal: React.FC<ApiKeysModalProps> = ({
                       <span>{state === "testing" ? "TESTING…" : state === "success" ? "SAVED" : state === "error" ? "RETRY" : "TEST & SAVE"}</span>
                     </button>
                   </div>
-                  )}
 
                   <div className="flex items-center justify-between gap-3 mono text-[9px] mt-2">
                     <span className="text-[#6B8A7A] truncate">{prov.description}</span>
