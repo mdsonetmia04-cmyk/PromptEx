@@ -92,16 +92,6 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
         )}
       </h1>
 
-      {/* Sub-headline */}
-      <p
-        className="text-center mono text-[12.5px] md:text-[13.5px] leading-relaxed mt-4 max-w-[620px] mx-auto"
-        style={{ color: "#8CA99A" }}
-      >
-        {isMetadata
-          ? "Upload your photos — real vision AI writes optimized titles, keywords and prompts for Adobe Stock, Shutterstock, Freepik and more. Batch upload supported."
-          : "Drop in any image — real vision AI reverse-engineers it into a detailed, reusable generation prompt in seconds."}
-      </p>
-
       {/* How it works — সহজ বাংলায় */}
       <div
         className="mt-8 rounded-[20px] p-6 md:p-8"
