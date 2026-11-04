@@ -73,7 +73,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
   const isMetadata = mode === "metadata";
 
   return (
-    <div id="landing-intro" className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2">
+    <div id="landing-intro" className="max-w-[880px] mx-auto mt-8 md:mt-14 px-2" style={{ background: "radial-gradient(ellipse 75% 480px at 50% -40px, rgba(143,191,90,0.09) 0%, rgba(143,191,90,0) 70%)" }}>
       {/* Eyebrow badge */}
       <div className="flex justify-center mb-5">
         <div
@@ -192,11 +192,11 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
 
       {/* How it works — সহজ বাংলায় */}
       <div
-        className="mt-10 rounded-[20px] p-6 md:p-8"
+        className="mt-8 rounded-[20px] p-6 md:p-8"
         style={{
-          background: "linear-gradient(180deg, #16241A 0%, #101A13 100%)",
-          border: "1px solid #2B4432",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.35)",
+          background: "#141F17",
+          border: "1px solid #233929",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
         }}
       >
         <div
@@ -249,7 +249,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
 
       {/* FAQ — সহজ বাংলায় */}
       <div
-        className="mt-6 mb-8 rounded-[20px] p-6 md:p-8"
+        className="mt-8 mb-8 rounded-[20px] p-6 md:p-8"
         style={{ background: "#141F17", border: "1px solid #233929" }}
       >
         <div
@@ -289,7 +289,7 @@ export const LandingIntro: React.FC<LandingIntroProps> = ({ mode, onStart }) => 
       </div>
 
       {/* START button */}
-      <div className="mt-2 mb-16 flex flex-col items-center gap-3">
+      <div className="mt-8 mb-16 flex flex-col items-center gap-3">
         <button
           type="button"
           onClick={onStart}
