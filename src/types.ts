@@ -39,7 +39,7 @@ export const PROVIDERS: Provider[] = [
   {
     id: "gemini",
     name: "Gemini",
-    model: "gemini-3.1-flash-lite",
+    model: "gemini-2.5-flash-lite",
     endpoint: "generativelanguage.googleapis.com",
     free: true,
     description: "Google Gemini Vision — Fast, accurate microstock analysis",
@@ -47,15 +47,15 @@ export const PROVIDERS: Provider[] = [
   {
     id: "groq",
     name: "Groq",
-    model: "llama-3.2-11b-vision-preview",
+    model: "meta-llama/llama-4-scout-17b-16e-instruct",
     endpoint: "api.groq.com",
     free: true,
-    description: "Groq Ultra-fast inference with Llama 3.2 Vision",
+    description: "Groq ultra-fast inference — Llama 4 Scout Vision",
   },
   {
     id: "openrouter",
     name: "OpenRouter",
-    model: "google/gemini-flash-1.5",
+    model: "google/gemini-2.5-flash",
     endpoint: "openrouter.ai",
     free: true,
     description: "OpenRouter unified AI endpoint",
@@ -85,12 +85,12 @@ export const PROVIDERS: Provider[] = [
     description: "HuggingFace Serverless Inference",
   },
   {
-    id: "cohere",
-    name: "Cohere",
-    model: "command-r",
-    endpoint: "api.cohere.ai",
+    id: "pollinations",
+    name: "Pollinations",
+    model: "openai",
+    endpoint: "text.pollinations.ai",
     free: true,
-    description: "Cohere Command-R enterprise model",
+    description: "Pollinations.ai — 100% free vision, no API key needed",
   },
 ];
 
