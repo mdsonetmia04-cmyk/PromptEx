@@ -67,23 +67,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
         className="rounded-[14px] p-4"
         style={{ background: "#1A2A1E", border: "1px solid #2B4432" }}
       >
-        <div className="flex items-center justify-between mb-2.5">
-          <div
-            className="flex items-center gap-2 mono text-[11px] tracking-[0.14em]"
-            style={{ color: "#8FBF5A" }}
-          >
-            <Key size={14} />
-            <span>API KEYS & ENGINE</span>
-          </div>
-          <span className="mono text-[9px] px-2 py-0.5 rounded-full bg-[#8FBF5A]/15 text-[#8FBF5A] border border-[#8FBF5A]/30 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8FBF5A] animate-pulse" />
-            <span>AUTO-SELECTION</span>
-          </span>
+        <div
+          className="flex items-center gap-2 mono text-[11px] tracking-[0.14em] mb-2.5"
+          style={{ color: "#8FBF5A" }}
+        >
+          <Key size={14} />
+          <span>API KEYS & ENGINE</span>
         </div>
 
-        <div className="text-[11px] mono text-[#8CA99A] leading-relaxed mb-3">
+        <div
+          className={`text-[11px] leading-relaxed mb-3 ${
+            hasAnyKey ? "mono text-[#8CA99A]" : "font-bangla text-[#8CA99A]"
+          }`}
+        >
           {hasAnyKey
-            ? "Your own API key detected. Vision model is automatically selected based on your key."
+            ? "API key active — vision model auto-selected."
             : "নিজের API key আবশ্যক — MANAGE API KEYS থেকে ফ্রি key যোগ করুন।"}
         </div>
 
@@ -302,7 +300,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="p-3 rounded-[10px] bg-[#0E1510] border border-[#2B4432]/80 flex items-start gap-2.5">
             <Target size={15} className="text-[#8FBF5A] shrink-0 mt-0.5" />
             <div className="text-[10px] mono leading-relaxed text-[#8CA99A]">
-              <span className="text-[#8FBF5A] font-semibold">BUYER-TARGETED SEO:</span> Titles & tags are automatically optimized for graphic designers, marketers, and commercial stock marketplace search volume based on the image design & use cases.
+              Titles & tags auto-optimized for buyer search across stock marketplaces.
             </div>
           </div>
         </div>
