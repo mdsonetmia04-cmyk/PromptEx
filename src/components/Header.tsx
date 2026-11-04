@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2 md:gap-3">
-        {/* Settings button + API KEYS dropdown */}
+        {/* API Config button + API KEYS dropdown */}
         <div className="relative">
           <button
             id="settings-btn"
@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-expanded={settingsOpen}
           >
             <Settings2 size={13} className="text-[#8FBF5A] shrink-0" />
-            <span className="hidden sm:inline">SETTINGS</span>
+            <span className="hidden sm:inline">API Config</span>
           </button>
 
           {settingsOpen && (
