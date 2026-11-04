@@ -68,29 +68,27 @@ export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof pars
   const provider = body.provider || "gemini";
   const key = body.apiKey?.trim() || ""; // personal key mandatory — no server fallback
   if (!body.imageBase64) throw Object.assign(new Error("Missing imageBase64 data"), { status: 400 });
-  if (!key) throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
+  if (!key && provider !== "pollinations") throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
   const prompt = buildSystemPrompt(body);
   let raw = "";
   const dataUrl = `data:${body.mimeType || "image/jpeg"};base64,${body.imageBase64}`;
   if (provider === "gemini") {
     const ai = new GoogleGenAI({ apiKey: key, httpOptions: { headers: { "User-Agent": "aistudio-build" } } });
     let last: any;
-    for (const model of ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-3.8-flash", "gemini-flash-latest", "gemini-2.5-flash"]) {
+    for (const model of ["gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash", "gemini-flash-latest"]) {
       try {
         const r = await ai.models.generateContent({ model, contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: body.mimeType || "image/jpeg", data: body.imageBase64 } }] }], config: { temperature: 0.4, maxOutputTokens: 2048 } });
         raw = r.text || ""; if (raw) break;
       } catch (e) { last = e; }
     }
     if (!raw && last) throw last;
-  } else if (provider === "groq") raw = await openAICompatible("https://api.groq.com/openai/v1/chat/completions", key, "llama-3.2-11b-vision-preview", prompt, dataUrl);
-  else if (provider === "openrouter") raw = await openAICompatible("https://openrouter.ai/api/v1/chat/completions", key, "google/gemini-flash-1.5", prompt, dataUrl, { "HTTP-Referer": "https://prompt-ex.vercel.app", "X-Title": "Prompt Executor Microstock" });
+  } else if (provider === "groq") raw = await openAICompatible("https://api.groq.com/openai/v1/chat/completions", key, "meta-llama/llama-4-scout-17b-16e-instruct", prompt, dataUrl);
+  else if (provider === "openrouter") raw = await openAICompatible("https://openrouter.ai/api/v1/chat/completions", key, "google/gemini-2.5-flash", prompt, dataUrl, { "HTTP-Referer": "https://prompt-ex.vercel.app", "X-Title": "Prompt Executor Microstock" });
   else if (provider === "together") raw = await openAICompatible("https://api.together.xyz/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo", prompt, dataUrl);
   else if (provider === "mistral") raw = await openAICompatible("https://api.mistral.ai/v1/chat/completions", key, "pixtral-12b-2409", prompt, dataUrl);
   else if (provider === "huggingface") raw = await openAICompatible("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision", prompt, dataUrl);
-  else if (provider === "cohere") {
-    const r = await fetch("https://api.cohere.ai/v1/chat", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` }, body: JSON.stringify({ model: "command-r", message: `${prompt}\nImage filename context: ${body.fileName || "image.jpg"}. Provide high quality microstock metadata.` }) });
-    const data: any = await r.json(); if (!r.ok) throw new Error(data?.message || `Cohere error: ${r.status}`); raw = data?.text || "";
-  } else throw Object.assign(new Error(`Unsupported provider: ${provider}`), { status: 400 });
+ else if (provider === "pollinations") raw = await openAICompatible("https://text.pollinations.ai/openai", "", "openai", prompt, dataUrl);
+  else throw Object.assign(new Error(`Unsupported provider: ${provider}`), { status: 400 });
   if (!raw) throw new Error("AI provider returned an empty response.");
   return parseModelOutput(raw, body.singleWordOnly ?? true, body.minKeywords ?? 15, body.maxKeywords ?? 49);
 }
