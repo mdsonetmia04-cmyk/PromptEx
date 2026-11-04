@@ -14,24 +14,46 @@ export type AnalyzeBody = {
   singleWordOnly?: boolean;
   customPrompt?: string;
   platforms?: string[];
+  titleCase?: string;
+  maxTitleLength?: number;
+  bannedWords?: string;
+  temperature?: number;
+  promptDetail?: string;
+};
+
+const TITLE_CASE_RULES: Record<string, string> = {
+  title: "Title must use Title Case (capitalize the first letter of each major word).",
+  sentence: "Title must use sentence case (capitalize only the very first word).",
+  upper: "Title must be written in ALL UPPERCASE.",
+  lower: "Title must be written in all lowercase.",
+};
+
+const PROMPT_DETAIL_WORDS: Record<string, [number, number]> = {
+  concise: [40, 70],
+  detailed: [70, 120],
+  ultra: [120, 180],
 };
 
 export function buildSystemPrompt(body: AnalyzeBody): string {
-  const { mode = "metadata", minTitleWords = 4, maxTitleWords = 12, minKeywords = 15, maxKeywords = 49, singleWordOnly = true, customPrompt = "", platforms = ["AdobeStock"] } = body;
+  const { mode = "metadata", minTitleWords = 4, maxTitleWords = 12, minKeywords = 15, maxKeywords = 49, singleWordOnly = true, customPrompt = "", platforms = ["AdobeStock"], titleCase = "title", bannedWords = "", promptDetail = "detailed" } = body;
+  const caseRule = TITLE_CASE_RULES[titleCase] || TITLE_CASE_RULES.title;
+  const bannedList = String(bannedWords || "").split(",").map((w) => w.trim()).filter(Boolean);
+  const bannedRule = bannedList.length ? ` Never use these banned words anywhere in the title or keywords: ${bannedList.join(", ")}.` : "";
+  const [pMin, pMax] = PROMPT_DETAIL_WORDS[promptDetail] || PROMPT_DETAIL_WORDS.detailed;
   const keywordRule = singleWordOnly ? "ONLY single-word keywords, lowercase, no duplicates, no phrases." : "Keywords can be single words or highly relevant short commercial phrases.";
   const platformContext = platforms.length ? `Target microstock platforms: ${platforms.join(", ")}.` : "";
   const buyerRules = `
 CRITICAL STOCK MARKETPLACE BUYER TARGETING:
 - Analyze the exact visual design archetype: 3D render, isometric, vector, flat design, photography, product shot, flat lay, lifestyle, abstract background, geometric pattern, UI/UX, template or banner.
 - Build a commercial title as [Primary Subject/Concept] + [Design Style/Medium] + [Commercial Use Case/Composition Feature].
-- Title must be ${minTitleWords}-${maxTitleWords} words, fluent professional English, never spammy.
+- Title must be ${minTitleWords}-${maxTitleWords} words, fluent professional English, never spammy. ${caseRule}${bannedRule}
 - Keywords must be ${minKeywords}-${maxKeywords}, prioritized by buyer search intent. First prioritize medium/style and subject, then commercial uses, composition/layout, industry concepts, and aesthetic terms. ${keywordRule}`;
   const extra = customPrompt.trim() ? ` Additional creator instruction: ${customPrompt.trim()}` : "";
-  if (mode === "prompt") return `You are an expert AI prompt engineer specializing in Adobe Stock commercial asset recreation. Analyze the reference image precisely and create a detailed generation prompt reproducing its subject, composition, medium, materials, lighting, camera/framing, color harmony, textures and copy space. Avoid trademarks, logos, living artists and celebrities. The prompt must be 70-120 words.\n\n${buyerRules}\n\nReturn ONLY raw valid JSON: {"prompt":"70-120 word recreation prompt","title":"${minTitleWords}-${maxTitleWords} word buyer-targeted title","keywords":["${minKeywords}-${maxKeywords} keywords"],"description":"20-30 word commercial description"}${extra}`;
-  return `You are a world-class microstock metadata optimization expert for ${platformContext || "commercial stock agencies"}. Analyze the image thoroughly for commercial search visibility and Adobe Stock compliance. ${buyerRules} Also provide a detailed Adobe Stock compliant recreation prompt of 60-100 words.\n\nReturn ONLY raw valid JSON: {"title":"${minTitleWords}-${maxTitleWords} word buyer-targeted title","keywords":["${minKeywords}-${maxKeywords} prioritized keywords"],"description":"15-25 word commercial description","prompt":"60-100 word recreation prompt"}${extra}`;
+  if (mode === "prompt") return `You are an expert AI prompt engineer specializing in Adobe Stock commercial asset recreation. Analyze the reference image precisely and create a detailed generation prompt reproducing its subject, composition, medium, materials, lighting, camera/framing, color harmony, textures and copy space. Avoid trademarks, logos, living artists and celebrities. The prompt must be ${pMin}-${pMax} words.\n\n${buyerRules}\n\nReturn ONLY raw valid JSON: {"prompt":"${pMin}-${pMax} word recreation prompt","title":"${minTitleWords}-${maxTitleWords} word buyer-targeted title","keywords":["${minKeywords}-${maxKeywords} keywords"],"description":"20-30 word commercial description"}${extra}`;
+  return `You are a world-class microstock metadata optimization expert for ${platformContext || "commercial stock agencies"}. Analyze the image thoroughly for commercial search visibility and Adobe Stock compliance. ${buyerRules} Also provide a detailed Adobe Stock compliant recreation prompt of ${pMin}-${pMax} words.\n\nReturn ONLY raw valid JSON: {"title":"${minTitleWords}-${maxTitleWords} word buyer-targeted title","keywords":["${minKeywords}-${maxKeywords} prioritized keywords"],"description":"15-25 word commercial description","prompt":"${pMin}-${pMax} word recreation prompt"}${extra}`;
 }
 
-export function parseModelOutput(rawText: string, singleWordOnly = true, minKeywords = 15, maxKeywords = 49) {
+export function parseModelOutput(rawText: string, singleWordOnly = true, minKeywords = 15, maxKeywords = 49, maxTitleLength = 200, bannedWords = "") {
   let title = "", description = "", prompt = "", keywords: string[] = [];
   const clean = String(rawText || "").replace(/```json/gi, "").replace(/```/g, "").trim();
   try {
@@ -47,6 +69,8 @@ export function parseModelOutput(rawText: string, singleWordOnly = true, minKeyw
   if (!title) title = clean.split("\n").map(x => x.replace(/[{}[\]",:]/g, "").trim()).find(x => x.length > 3) || "Commercial Stock Asset";
   if (!keywords.length) keywords = clean.toLowerCase().split(/\W+/).filter(w => w.length > 2 && !["title","keywords","description","prompt","json","true","false"].includes(w));
   keywords = singleWordOnly ? keywords.flatMap(k => k.split(/[\s,]+/)).map(k => k.toLowerCase().replace(/[^a-z0-9-]/g, "")).filter(k => k.length > 1) : keywords.map(k => k.toLowerCase().trim()).filter(k => k.length > 1);
+  const banned = String(bannedWords || "").split(",").map((w) => w.trim().toLowerCase()).filter(Boolean);
+  if (banned.length) keywords = keywords.filter((k) => !String(k).toLowerCase().split(/[^a-z0-9]+/).some((w) => banned.includes(w)));
   keywords = Array.from(new Set(keywords)).slice(0, maxKeywords);
   if (!description) description = title;
   if (!prompt) prompt = `${title}, professional commercial stock asset, crisp lighting, high resolution`;
@@ -54,11 +78,12 @@ export function parseModelOutput(rawText: string, singleWordOnly = true, minKeyw
     const extra = ["commercial","stock","design","creative","modern","professional","visual","asset","marketing","advertising","template","background","quality","clean","digital"];
     for (const k of extra) if (keywords.length < minKeywords && !keywords.includes(k)) keywords.push(k);
   }
-  return { title: title.trim().slice(0, 200), keywords, description: description.trim(), prompt: prompt.trim(), raw: rawText };
+  const safeMaxLen = Number(maxTitleLength) > 0 ? Math.floor(Number(maxTitleLength)) : 200;
+  return { title: title.trim().slice(0, safeMaxLen), keywords, description: description.trim(), prompt: prompt.trim(), raw: rawText };
 }
 
-async function openAICompatible(url: string, key: string, model: string, prompt: string, dataUrl: string, extraHeaders: Record<string,string> = {}) {
-  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, ...extraHeaders }, body: JSON.stringify({ model, messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], max_tokens: 2048, temperature: 0.4 }) });
+async function openAICompatible(url: string, key: string, model: string, prompt: string, dataUrl: string, extraHeaders: Record<string,string> = {}, temperature = 0.4) {
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}`, ...extraHeaders }, body: JSON.stringify({ model, messages: [{ role: "user", content: [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: dataUrl } }] }], max_tokens: 2048, temperature }) });
   const data: any = await r.json();
   if (!r.ok) throw new Error(data?.error?.message || data?.message || `Provider error: ${r.status}`);
   return data?.choices?.[0]?.message?.content || data?.text || "";
@@ -70,6 +95,7 @@ export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof pars
   if (!body.imageBase64) throw Object.assign(new Error("Missing imageBase64 data"), { status: 400 });
   if (!key) throw Object.assign(new Error(`An API key is required for ${provider.toUpperCase()}.`), { status: 400 });
   const prompt = buildSystemPrompt(body);
+  const temperature = typeof body.temperature === "number" && body.temperature >= 0 && body.temperature <= 2 ? body.temperature : 0.4;
   let raw = "";
   const dataUrl = `data:${body.mimeType || "image/jpeg"};base64,${body.imageBase64}`;
   if (provider === "gemini") {
@@ -77,17 +103,17 @@ export async function analyze(body: AnalyzeBody): Promise<ReturnType<typeof pars
     let last: any;
     for (const model of ["gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.5-flash", "gemini-flash-latest"]) {
       try {
-        const r = await ai.models.generateContent({ model, contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: body.mimeType || "image/jpeg", data: body.imageBase64 } }] }], config: { temperature: 0.4, maxOutputTokens: 2048 } });
+        const r = await ai.models.generateContent({ model, contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { mimeType: body.mimeType || "image/jpeg", data: body.imageBase64 } }] }], config: { temperature, maxOutputTokens: 2048 } });
         raw = r.text || ""; if (raw) break;
       } catch (e) { last = e; }
     }
     if (!raw && last) throw last;
-  } else if (provider === "groq") raw = await openAICompatible("https://api.groq.com/openai/v1/chat/completions", key, "meta-llama/llama-4-scout-17b-16e-instruct", prompt, dataUrl);
-  else if (provider === "openrouter") raw = await openAICompatible("https://openrouter.ai/api/v1/chat/completions", key, "google/gemini-2.5-flash", prompt, dataUrl, { "HTTP-Referer": "https://prompt-ex.vercel.app", "X-Title": "Prompt Executor Microstock" });
-  else if (provider === "together") raw = await openAICompatible("https://api.together.xyz/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo", prompt, dataUrl);
-  else if (provider === "mistral") raw = await openAICompatible("https://api.mistral.ai/v1/chat/completions", key, "pixtral-12b-2409", prompt, dataUrl);
-  else if (provider === "huggingface") raw = await openAICompatible("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision", prompt, dataUrl);
+  } else if (provider === "groq") raw = await openAICompatible("https://api.groq.com/openai/v1/chat/completions", key, "meta-llama/llama-4-scout-17b-16e-instruct", prompt, dataUrl, {}, temperature);
+  else if (provider === "openrouter") raw = await openAICompatible("https://openrouter.ai/api/v1/chat/completions", key, "google/gemini-2.5-flash", prompt, dataUrl, { "HTTP-Referer": "https://prompt-ex.vercel.app", "X-Title": "Prompt Executor Microstock" }, temperature);
+  else if (provider === "together") raw = await openAICompatible("https://api.together.xyz/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo", prompt, dataUrl, {}, temperature);
+  else if (provider === "mistral") raw = await openAICompatible("https://api.mistral.ai/v1/chat/completions", key, "pixtral-12b-2409", prompt, dataUrl, {}, temperature);
+  else if (provider === "huggingface") raw = await openAICompatible("https://api-inference.huggingface.co/models/meta-llama/Llama-3.2-11B-Vision/v1/chat/completions", key, "meta-llama/Llama-3.2-11B-Vision", prompt, dataUrl, {}, temperature);
   else throw Object.assign(new Error(`Unsupported provider: ${provider}`), { status: 400 });
   if (!raw) throw new Error("AI provider returned an empty response.");
-  return parseModelOutput(raw, body.singleWordOnly ?? true, body.minKeywords ?? 15, body.maxKeywords ?? 49);
+  return parseModelOutput(raw, body.singleWordOnly ?? true, body.minKeywords ?? 15, body.maxKeywords ?? 49, body.maxTitleLength ?? 200, body.bannedWords ?? "");
 }
