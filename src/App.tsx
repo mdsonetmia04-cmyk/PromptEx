@@ -73,6 +73,42 @@ export default function App() {
     ).join("");
   };
 
+  // Turn raw provider error payloads (sometimes raw JSON) into readable messages.
+  const friendlyError = (raw: string): string => {
+    let msg = String(raw || "Analysis failed");
+    try {
+      const t = msg.trim();
+      if (t.startsWith("{")) {
+        const p = JSON.parse(t);
+        const inner = p?.error;
+        const innerMsg = typeof inner === "string" ? inner : inner?.message;
+        if (innerMsg) msg = String(innerMsg);
+      }
+    } catch {
+      /* keep original */
+    }
+    if (/high demand|overloaded|UNAVAILABLE/i.test(msg) || /\b503\b/.test(msg)) {
+      return "AI \u09b8\u09be\u09b0\u09cd\u09ad\u09be\u09b0 \u098f\u0996\u09a8 \u09ac\u09cd\u09af\u09b8\u09cd\u09a4 \u0986\u099b\u09c7 \u2014 \u09e7-\u09e8 \u09ae\u09bf\u09a8\u09bf\u099f \u0985\u09aa\u09c7\u0995\u09cd\u09b7\u09be \u0995\u09b0\u09c7 RETRY \u099a\u09be\u09aa \u09a6\u09bf\u09a8\u0964";
+    }
+    if (/incorrect api key|invalid api key|invalid_api_key|API key not valid/i.test(msg)) {
+      return "API key \u099f\u09bf \u09b8\u09a0\u09bf\u0995 \u09a8\u09af\u09bc \u2014 API Config \u09a5\u09c7\u0995\u09c7 \u09b8\u09a0\u09bf\u0995 key \u09a6\u09bf\u09a8\u0964";
+    }
+    return msg;
+  };
+
+  // Provider capacity errors: stop the batch instead of hammering every image.
+  const isCapacityError = (raw: string): boolean => {
+    const l = String(raw || "").toLowerCase();
+    return (
+      l.includes("rate limit") ||
+      l.includes("quota") ||
+      l.includes("high demand") ||
+      l.includes("overloaded") ||
+      l.includes("unavailable") ||
+      l.includes("503")
+    );
+  };
+
   const formatTitleWithAffixes = (
     base: string,
     prefix: string,
@@ -485,7 +521,8 @@ export default function App() {
           )
         );
       } catch (err: any) {
-        const errorMsg = err.message || "Analysis failed";
+        const rawMsg = err.message || "Analysis failed";
+        const errorMsg = friendlyError(rawMsg);
         setImages((prev) =>
           prev.map((it) =>
             it.id === item.id
@@ -494,12 +531,9 @@ export default function App() {
           )
         );
 
-        if (
-          errorMsg.toLowerCase().includes("rate limit") ||
-          errorMsg.toLowerCase().includes("quota")
-        ) {
+        if (isCapacityError(rawMsg)) {
           showToast(errorMsg, "error");
-          break; // Stop processing further images to avoid cascading rate limit errors
+          break; // Stop processing further images to avoid cascading provider-capacity errors
         }
       }
 
@@ -576,7 +610,7 @@ export default function App() {
       setImages((prev) =>
         prev.map((it) =>
           it.id === item.id
-            ? { ...it, status: "error", error: err.message || "Analysis failed" }
+            ? { ...it, status: "error", error: friendlyError(err.message || "Analysis failed") }
             : it
         )
       );
@@ -620,7 +654,7 @@ export default function App() {
       } catch (err: any) {
         setImages((prev) =>
           prev.map((it) =>
-            it.id === item.id ? { ...it, status: "error", error: err.message || "Analysis failed" } : it
+            it.id === item.id ? { ...it, status: "error", error: friendlyError(err.message || "Analysis failed") } : it
           )
         );
       }
