@@ -3,6 +3,7 @@ import { Plus, LoaderCircle, Download, FileText, Trash2, AlertCircle, CheckCircl
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { Dropzone } from "./components/Dropzone";
+import { LandingIntro } from "./components/LandingIntro";
 import { ImageCard } from "./components/ImageCard";
 import { ApiKeysModal } from "./components/ApiKeysModal";
 import { ExportModal } from "./components/ExportModal";
@@ -34,6 +35,7 @@ export default function App() {
   const [isKeysModalOpen, setIsKeysModalOpen] = useState<boolean>(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState<boolean>(false);
+  const [started, setStarted] = useState<boolean>(false);
 
   const [images, setImages] = useState<ImageItem[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<StockPlatform[]>([
@@ -529,6 +531,10 @@ export default function App() {
         </div>
       )}
 
+      {!started ? (
+        <LandingIntro mode={mode} onStart={() => setStarted(true)} />
+      ) : (
+        <>
       {/* Top Header */}
       <Header
         aiEnabled={aiEnabled}
@@ -851,6 +857,8 @@ export default function App() {
           </div>
         </main>
       </div>
+        </>
+      )}
 
       {/* 7 Providers API Keys Modal */}
       <ApiKeysModal
